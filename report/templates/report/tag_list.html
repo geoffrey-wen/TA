@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<br>
+<div class="row">
+    <div class="col">
+        <div class="card card-body">
+            <form method="get">
+                {{tag_filter.form|crispy}}
+                <button class="btn btn-outline-info" type="submit">
+                    Search
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+<br>
+<div class="row">
+    <div class="col-md">
+        <div class="card card-body">
+            <table class="table table-sm table-hover table-responsive">
+                <tr>
+                    <th style="text-align:center"></th>
+                    <th style="text-align:center">Name</th>
+                    <th style="text-align:center">Creator</th>
+                    <th style="text-align:center">Description</th>
+                </tr>
+                {% for tag in tags %}
+                <tr>
+                    <td class="align-middle"  style="text-align:center">
+                        {% if tag in user.profile.tag.all%}
+                        <a class="btn btn-outline-info btn-sm mt-1 mb-1" href="{% url 'tag-reports' tag.name %}">
+                             ✓
+                        </a>
+                        {% else %}
+                        <a class="btn btn-info btn-sm mt-1 mb-1" href="{% url 'tag-reports' tag.name %}">
+                            ✕
+                        </a>
+                        {% endif %}
+                    </td>
+                    <td class="align-middle"  style="text-align:center">
+                        {% if tag in user.profile.tag.all%}
+                        <a class="btn btn-outline-info btn-sm mt-1 mb-1" href="{% url 'tag-reports' tag.name %}">
+                            {{ tag.name }}
+                        </a>
+                        {% else %}
+                        <a class="btn btn-info btn-sm mt-1 mb-1" href="{% url 'tag-reports' tag.name %}">
+                            {{ tag.name }}
+                        </a>
+                        {% endif %}
+                    </td>
+                    <td class="align-middle"  style="text-align:center">
+                        {% if tag in user.profile.tag.all%}
+                        <a class="btn btn-outline-info btn-sm mt-1 mb-1" href="{% url 'user-reports' tag.creator.username %}">
+                            {{ tag.creator.username }}
+                        </a>
+                        {% else %}
+                        <a class="btn btn-info btn-sm mt-1 mb-1" href="{% url 'user-reports' tag.creator.username %}">
+                            {{ tag.creator.username }}
+                        </a>
+                        {% endif %}
+                    </td>
+                    <td class="align-middle" >
+                        {% if tag.description|length > 140 %}
+                            {{ tag.description|slice:140 }} ...
+                        {% else %}
+                            {{ tag.description }}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

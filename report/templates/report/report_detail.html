@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<form name="form" method="POST">
+    {% csrf_token %}
+<article class="media content-section">
+    <img class="rounded-circle article-img" src="{{ object.reporter.profile.image.url }}">
+    <div class="media-body">
+        <div class="article-metadata">
+            <div class="row">
+                <div class="col">
+            <a class="mr-2" href="{% url 'user-reports' object.reporter.username %}">
+                {{ object.reporter }}
+            </a>
+            <small class="text-muted">
+                {{ object.date_reported|date:"F d, Y" }}
+            </small>
+                </div>
+            {% if object.reporter == user %}
+                <div class="col-*-* mr-2">
+            <a class="btn btn-outline-info btn-sm mt-1 mb-1 ml-3 mr-2"
+               href="{% url 'report-update' object.id %}">Update</a>
+            <a class="btn btn-outline-danger btn-sm mt-1 mb-1" href="{% url 'report-delete' object.id %}">Delete</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+        <h2 class="mt-1">
+            {{ object.title }}
+        </h2>
+            </div>
+                {% if object.taker %}
+                {% else %}
+                    <div class="col-2 mt-2 mr-3">
+                        <button class="btn btn-outline-primary mb-1" name="takeButton" type="submit" value=True >Take</button>
+                    </div>
+                {% endif %}
+        </div>
+        <div class= "mb-1" >
+        <span class='text-muted'>Taker :
+        </span>
+            {% if object.taker %}
+            <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{% url 'user-reports' object.taker.username %}">{{object.taker}}</a>
+            {% endif %}
+        </div>
+        {% if object.taker %}
+        <div class= "mb-1" >
+        <span class='text-muted'>Progress :
+        </span>
+            {% if object.taker == user %}
+                <select class="custom-select" name="progress" style="max-width: 200px;">
+                    {% for level in object.TaskLevel %}
+                        {% if object.progress == level.value %}
+                            <option value={{level.value}} selected>{{level.label}}</option>
+                        {% else %}
+                            <option value={{level.value}}>{{level.label}}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            <button class="btn btn-outline-primary btn-sm mb-1" type="submit" >✓</button>
+            {% else %}
+                {% for level in object.TaskLevel %}
+                    {% if object.progress == level.value %}
+                        <span class='text-muted'> {{ level.label }} </span>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        </div>
+        {% endif %}
+        <div class="mb-1">
+        <span class='text-muted'>Tags :
+        </span>
+        {% for tag in object.tag.all%}
+        <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{% url 'tag-reports' tag.name %}">{{tag.name}}</a>
+        {% endfor %}
+        </div>
+        {% if object.image %}
+        <div>
+            <img class="img-fluid mx-auto d-block" style="height: 300px" src="{{ object.image.url }}">
+        </div>
+        {% endif %}
+        <p class="article-content">
+            {{ object.content }}
+        </p>
+    </div>
+</article>
+</form>
+
+{% endblock %}

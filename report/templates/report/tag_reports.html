@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1 class="mb-3">{{ view.kwargs.tagname }} ({{ page_obj.paginator.count }})</h1>
+<form name="form" method="POST">
+{% csrf_token %}
+{% if is_subscribed %}
+    <button class='btn btn-outline-info' name="subscribeButton" style="float: right;" type="submit" value=True> Subscribed </button>
+{% else %}
+    <button class='btn btn-info' name="subscribeButton" style="float: right;" type="submit" value=True> Subscribe </button>
+{% endif %}
+</form>
+<span class='text-muted mb-1'>Creator :</span>
+<a class='btn btn-secondary btn-sm mt-1 mb-1' href="{% url 'user-reports' creator.username %}"> {{ creator.username }} </a>
+<p class='text-muted mb-2'>Desc : {{ description }}</p>
+<br>
+{% for object in object_list %}
+<article class="media content-section">
+    <img class="rounded-circle article-img" src="{{ object.reporter.profile.image.url }}">
+    <div class="media-body">
+        <div class="article-metadata">
+            <div class="row">
+                <div class="col">
+            <a class="mr-2" href="{% url 'user-reports' object.reporter.username %}">
+                {{ object.reporter }}
+            </a>
+            <small class="text-muted">
+                {{ object.date_reported|date:"F d, Y" }}
+            </small>
+                </div>
+                <div class="col-*-* mr-1">
+                                {% if object.urgency and object.importance %}
+                        {% if object.urgency == 1 %}
+                            <small class="btn btn-sm btn-danger mb-1 ml-4 disabled">
+                                Urg : High
+                            </small>
+                        {% elif object.urgency == 2 %}
+                            <small class="btn btn-sm btn-warning mb-1 ml-4 disabled">
+                                Urg : Med
+                            </small>
+                        {% else %}
+                            <small class="btn btn-sm btn-success mb-1 ml-4 disabled">
+                                Urg : Low
+                            </small>
+                        {% endif %}
+                        {% if object.importance == 1 %}
+                            <small class="btn btn-sm btn-danger mb-1 ml-1 disabled">
+                                Imp : High
+                            </small>
+                        {% elif object.importance == 2 %}
+                            <small class="btn btn-sm btn-warning mb-1 ml-1 disabled">
+                                Imp : Med
+                            </small>
+                        {% else %}
+                            <small class="btn btn-sm btn-success mb-1 ml-1 disabled">
+                                Imp : Low
+                            </small>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <h2>
+            <a class="article-title" href="{% url 'report-detail' object.id %}">
+                {{ object.title }}
+            </a>
+        </h2>
+        {% if object.image %}
+        <div>
+            <img class="img-fluid mx-auto d-block" style="height: 300px" src="{{ object.image.url }}">
+        </div>
+        {% endif %}
+                        <p class="article-content">
+                {% if object.content|length > 140 %}
+                    {{ object.content|slice:140 }} ...
+                {% else %}
+                    {{ object.content }}
+                {% endif %}
+                </p>
+    </div>
+</article>
+{% endfor %}
+{% if is_paginated %}
+{% if page_obj.has_previous %}
+<a class="btn btn-outline-info mb-4" href="?page=1">First</a>
+<a class="btn btn-outline-info mb-4" href="?page={{ page_obj.previous_page_number }}">Prev</a>
+{% endif %}
+{% for num in page_obj.paginator.page_range %}
+{% if page_obj.number == num %}
+<a class="btn btn-info mb-4" href="?page={{ num }}">{{ num }}</a>
+{% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+<a class="btn btn-outline-info mb-4" href="?page={{ num }}">{{ num }}</a>
+{% endif %}
+{% endfor %}
+{% if page_obj.has_next %}
+<a class="btn btn-outline-info mb-4" href="?page={{ page_obj.next_page_number }}">Next</a>
+<a class="btn btn-outline-info mb-4" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+{% endif %}
+{% endif %}
+{% endblock %}

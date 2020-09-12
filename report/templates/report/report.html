@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {% for report in reports %}
+        <article class="media content-section">
+            <div class="media-body">
+                <div class="article-metadata">
+                    <a class="mr-2" href="#">
+                        {{ report.reporter }}
+                    </a>
+                    <small class="text-muted">
+                        {{ report.date_reported|date:"F d, Y" }}
+                    </small>
+                </div>
+                <h2>
+                    <a class="article-title" href="#">
+                        {{ report.title }}
+                    </a>
+                </h2>
+                <p class="article-content">
+                    {{ report.content }}
+                </p>
+            </div>
+        </article>
+    {% endfor %}
+{% endblock %}
