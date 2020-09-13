@@ -5,6 +5,7 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User, AnonymousUser
 from .filters import TagFilter
+import datetime
 
 def About(request):
     return HttpResponse('LoremIpsum')
@@ -119,9 +120,11 @@ class ReportDetailView(LoginRequiredMixin, DetailView):
         if request.POST.get('takeButton') == 'True' :
             report.taker = user
             report.progress = 1
+            report.date_last_progress = datetime.datetime.now()
             report.save()
         if request.POST.get('progress'):
             report.progress = int(request.POST.get('progress'))
+            report.date_last_progress = datetime.datetime.now()
             report.save()
         return redirect('report-detail', pk = report.pk)
 
@@ -136,7 +139,7 @@ class ReportCreateView(LoginRequiredMixin, CreateView):
 
 class ReportUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Report
-    fields = ['title', 'content', 'image', 'tag']
+    fields = ['title', 'content', 'image', 'tag', 'urgency', 'importance']
 
     def form_valid(self, form):
         form.instance.reporter = self.request.user
@@ -179,3 +182,22 @@ def TagList(request):
                'tag_count':tag_count,
                'tag_filter':tag_filter}
     return render(request, 'report/tag_list.html', context)
+
+def ProgressTaken(request):
+    if not request.user.username:
+        return redirect('/login/?next=%s' % request.path)
+
+    user = request.user
+    reports = Report.objects.filter(taker=user).order_by('urgency','importance', '-date_reported__date')
+    reports_ongoing = reports.filter(progress__lte=3) | reports.filter(progress=5)
+    reports_finished = reports.filter(progress__gte=6).order_by('-date_last_progress')
+    #report_finished order by date finished
+    reports_not_approved = reports.filter(progress=4)
+    context = {'reports_ongoing' : reports_ongoing,
+               'reports_finished' : reports_finished,
+               'reports_not_approved' : reports_not_approved}
+    return render(request, 'report/progress_taken.html', context)
+
+
+# def ProgressSubscribed(request):
+# def ProgressList(request):

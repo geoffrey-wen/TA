@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="card card-body">
+    <div class="mb-1">
+    <h3>Ongoing</h3>
+    </div>
+    <table class="table table-sm table-hover table-responsive">
+        <tr>
+            <th class="align-middle" style="text-align:center">Report</th>
+            <th class="align-middle" style="text-align:center">Taken</th>
+            <th class="align-middle" style="text-align:center">Field Checking</th>
+            <th class="align-middle" style="text-align:center">Approved</th>
+            <th class="align-middle" style="text-align:center">Responsing</th>
+        </tr>
+        {% for report in reports_ongoing %}
+        <tr>
+            <td class="align-middle"  style="text-align:center">
+                {% if report.urgency == 1%}
+                <a class="btn btn-outline-danger btn-sm mt-1 mb-1" href="{% url 'report-detail' report.pk %}">
+                     {{report.title}}
+                </a>
+                {% elif report.urgency == 2 %}
+                <a class="btn btn-outline-warning btn-sm mt-1 mb-1" href="{% url 'report-detail' report.pk %}">
+                     {{report.title}}
+                </a>
+                {% elif report.urgency == 3 %}
+                <a class="btn btn-outline-success btn-sm mt-1 mb-1" href="{% url 'report-detail' report.pk %}">
+                     {{report.title}}
+                </a>
+                {% else %}
+                <a class="btn btn-outline-secondary btn-sm mt-1 mb-1" href="{% url 'report-detail' report.pk %}">
+                     {{report.title}}
+                </a>
+                {% endif %}
+            </td>
+            <td class="align-middle"  style="text-align:center">
+                {% if report.progress == 1 %}
+                <span class="btn btn-primary btn-sm mt-1 mb-1 disabled" >
+                     ✓
+                </span>
+                {% endif %}
+            </td>
+            <td class="align-middle"  style="text-align:center">
+                {% if report.progress == 2 %}
+                <span class="btn btn-primary btn-sm mt-1 mb-1 disabled" >
+                     ✓
+                </span>
+                {% endif %}
+            </td>
+            <td class="align-middle"  style="text-align:center">
+                {% if report.progress == 3 %}
+                <span class="btn btn-primary btn-sm mt-1 mb-1 disabled" >
+                     ✓
+                </span>
+                {% endif %}
+            </td>
+            <td class="align-middle"  style="text-align:center">
+                {% if report.progress == 5 %}
+                <span class="btn btn-primary btn-sm mt-1 mb-1 disabled" >
+                     ✓
+                </span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+<br>
+<div class="card card-body">
+    <div class="mb-1">
+    <h3>Finished</h3>
+    </div>
+    <table class="table table-sm table-hover table-responsive">
+        <tr>
+            <th class="align-middle" style="text-align:center">Report</th>
+            <th class="align-middle" style="text-align:center">Resolved</th>
+            <th class="align-middle" style="text-align:center">Postponed</th>
+            <th class="align-middle" style="text-align:center">Failed</th>
+        </tr>
+        {% for report in reports_finished %}
+        <tr>
+            <td class="align-middle"  style="text-align:center">
+                {% if report.urgency == 1%}
+                <a class="btn btn-outline-danger btn-sm mt-1 mb-1" href="{% url 'report-detail' report.pk %}">
+                     {{report.title}}
+                </a>
+                {% elif report.urgency == 2 %}
+                <a class="btn btn-outline-warning btn-sm mt-1 mb-1" href="{% url 'report-detail' report.pk %}">
+                     {{report.title}}
+                </a>
+                {% elif report.urgency == 3 %}
+                <a class="btn btn-outline-success btn-sm mt-1 mb-1" href="{% url 'report-detail' report.pk %}">
+                     {{report.title}}
+                </a>
+                {% else %}
+                <a class="btn btn-outline-secondary btn-sm mt-1 mb-1" href="{% url 'report-detail' report.pk %}">
+                     {{report.title}}
+                </a>
+                {% endif %}
+            </td>
+            <td class="align-middle"  style="text-align:center">
+                {% if report.progress == 6 %}
+                <span class="btn btn-primary btn-sm mt-1 mb-1 disabled" >
+                     ✓
+                </span>
+                {% endif %}
+            </td>
+            <td class="align-middle"  style="text-align:center">
+                {% if report.progress == 7 %}
+                <span class="btn btn-primary btn-sm mt-1 mb-1 disabled" >
+                     ✓
+                </span>
+                {% endif %}
+            </td>
+            <td class="align-middle"  style="text-align:center">
+                {% if report.progress == 8 %}
+                <span class="btn btn-primary btn-sm mt-1 mb-1 disabled" >
+                     ✓
+                </span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+<br>
+{% endblock %}

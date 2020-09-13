@@ -17,4 +17,5 @@ urlpatterns = [
     path('tag-new', views.TagCreateView.as_view(), name='tag-create'),
     path('tag-list', views.TagList, name='tag-list'),
 
+    path('progress-taken', views.ProgressTaken, name='progress-taken')
 ]

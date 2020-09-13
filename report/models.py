@@ -42,7 +42,7 @@ class Report(models.Model):
         Approved = 3
         Not_Approved = 4
         Responsing = 5
-        Finished = 6
+        Resolved = 6
         Postponed = 7
         Failed = 8
 
@@ -57,7 +57,7 @@ class Report(models.Model):
     importance = models.IntegerField(choices=Level.choices, null=True)
     progress = models.IntegerField(choices=TaskLevel.choices, null=True, blank=True)
     taker = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='reporttaken_set')
-
+    date_last_progress = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return self.title
