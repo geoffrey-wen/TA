@@ -47,11 +47,20 @@
                         </div>
                     </div>
                 </div>
+                        <div class="row">
+            <div class="col">
                 <h2>
                     <a class="article-title" href="{% url 'report-detail' object.id %}">
                         {{ object.title }}
                     </a>
                 </h2>
+            </div>
+                {% if object.taker %}
+                    <div class="col-2 mt-2 mr-3 ">
+                        <span class="btn btn-primary mb-1 disabled" >Taken</span>
+                    </div>
+                {% endif %}
+        </div>
                 {% if object.image %}
                 <div >
                     <img class="img-fluid mx-auto d-block" style="height: 300px" src="{{ object.image.url }}">

@@ -5,6 +5,7 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User, AnonymousUser
 from .filters import TagFilter
+from django.db.models import Case, Value, When,IntegerField
 import datetime
 
 def About(request):
@@ -77,20 +78,19 @@ class SubscribedReportListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         tags = self.request.user.profile.tag.all()
-        """
-        queryset = Report.objects.none()
-        for tag in tags:
-            queryset = queryset.union(Report.objects.filter(tag=tag))
-        """
         queryset = Report.objects.none()
         for i in range(tags.count()):
             queryset = queryset | Report.objects.filter(tag=tags[i])
+            #.union hanya works sdi terminal; why?
         queryset = queryset.distinct()
-
-        return queryset.order_by('-date_reported__date','urgency','importance')
-
-#qs1 = User.objects.get(username='uji1').profile.tag.all()
-#qs2 = User.objects.get(username='adminTA').profile.tag.all()
+        queryset = queryset.annotate(
+            taken_status = Case(
+                When(taker=None, then=Value(0)),
+                default = 1,
+                output_field=IntegerField()
+            )
+        ).order_by('taken_status','-date_reported__date','urgency','importance')
+        return queryset
 
 #before change tag-report field to report model
 """
@@ -124,6 +124,11 @@ class ReportDetailView(LoginRequiredMixin, DetailView):
             report.save()
         if request.POST.get('progress'):
             report.progress = int(request.POST.get('progress'))
+            print(request.POST.get('progress-note'))
+            print(report.progress_note)
+            report.progress_note = request.POST.get('progress-note')
+            print(report.progress_note)
+            print(request.POST.get('progress-note'))
             report.date_last_progress = datetime.datetime.now()
             report.save()
         return redirect('report-detail', pk = report.pk)
@@ -191,13 +196,31 @@ def ProgressTaken(request):
     reports = Report.objects.filter(taker=user).order_by('urgency','importance', '-date_reported__date')
     reports_ongoing = reports.filter(progress__lte=3) | reports.filter(progress=5)
     reports_finished = reports.filter(progress__gte=6).order_by('-date_last_progress')
-    #report_finished order by date finished
-    reports_not_approved = reports.filter(progress=4)
+    reports_not_approved = reports.filter(progress=4).order_by('-date_last_progress')
     context = {'reports_ongoing' : reports_ongoing,
                'reports_finished' : reports_finished,
                'reports_not_approved' : reports_not_approved}
     return render(request, 'report/progress_taken.html', context)
 
+def ProgressSubscribed(request):
+    if not request.user.username:
+        return redirect('/login/?next=%s' % request.path)
+
+    tags = request.user.profile.tag.all()
+    reports = Report.objects.none()
+    for i in range(tags.count()):
+        reports = reports | Report.objects.filter(tag=tags[i])
+        # .union hanya works sdi terminal; why?
+    reports = reports.distinct().order_by('urgency','importance', '-date_reported__date')
+    reports_not_taken = reports.filter(taker=None)
+    reports_ongoing = reports.filter(progress__lte=3) | reports.filter(progress=5)
+    reports_finished = reports.filter(progress__gte=6).order_by('-date_last_progress')
+    reports_not_approved = reports.filter(progress=4).order_by('-date_last_progress')
+    context = {'reports_not_taken' : reports_not_taken,
+               'reports_ongoing': reports_ongoing,
+               'reports_finished' : reports_finished,
+               'reports_not_approved' : reports_not_approved}
+    return render(request, 'report/progress_subscribed.html', context)
 
 # def ProgressSubscribed(request):
 # def ProgressList(request):

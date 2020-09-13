@@ -26,7 +26,7 @@
             </div>
         </div>
         <div class="row">
-            <div class="col">
+            <div class="col mb-2">
         <h2 class="mt-1">
             {{ object.title }}
         </h2>
@@ -38,7 +38,7 @@
                     </div>
                 {% endif %}
         </div>
-        <div class= "mb-1" >
+        <div class= "mb-2" >
         <span class='text-muted'>Taker :
         </span>
             {% if object.taker %}
@@ -59,7 +59,6 @@
                         {% endif %}
                     {% endfor %}
                 </select>
-            <button class="btn btn-outline-primary btn-sm mb-1" type="submit" >✓</button>
             {% else %}
                 {% for level in object.TaskLevel %}
                     {% if object.progress == level.value %}
@@ -69,9 +68,23 @@
             {% endif %}
             <span class="ml-1 text-muted">{{ object.date_last_progress|date:"dMy" }}</span>
         </div>
+        <div class="mb-2">
+            {% if object.taker == user %}
+            {% if object.progress_note %}
+            <input class="form-control mt-1" type="text" placeholder="Progress Notes"name="progress-note" value="{{ object.progress_note }}">
+            {% else %}
+            <input class="form-control mt-1" type="text" placeholder="Progress Notes"name="progress-note" >
+            {% endif %}
+            <div class="mt-1" style="text-align:center">
+            <button class="btn btn-outline-primary btn-sm btn-block" type="submit" >Save Progress</button>
+            </div>
+            {% else %}
+            <input class="form-control mt-1 bg-light" type="text"  value="{{ object.progress_note }}" readonly>
+            {% endif%}
+        </div>
         {% endif %}
-        <div class="mb-1">
-        <span class='text-muted'>Tags :
+        <div class="mb-2">
+        <span class='text-muted '>Tags :
         </span>
         {% for tag in object.tag.all%}
         <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{% url 'tag-reports' tag.name %}">{{tag.name}}</a>

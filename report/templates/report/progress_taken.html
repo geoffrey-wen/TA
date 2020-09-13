@@ -4,18 +4,27 @@
 {% block content %}
 <div class="card card-body">
     <div class="mb-1">
-    <h3>Ongoing</h3>
+    <h3>Ongoing ({{reports_ongoing.count}})</h3>
     </div>
     <table class="table table-sm table-hover table-responsive">
         <tr>
+            <th class="align-middle" style="text-align:center"></th>
             <th class="align-middle" style="text-align:center">Report</th>
-            <th class="align-middle" style="text-align:center">Taken</th>
             <th class="align-middle" style="text-align:center">Field Checking</th>
             <th class="align-middle" style="text-align:center">Approved</th>
             <th class="align-middle" style="text-align:center">Responsing</th>
+            <th class="align-middle" style="text-align:center">Note</th>
         </tr>
         {% for report in reports_ongoing %}
         <tr>
+            <td class="align-middle"  style="text-align:center">
+                <div>
+                <small class="text-muted">{{ report.date_last_progress|date:"dMy" }}</small>
+                </div>
+                <div>
+                <small class="text-muted">{{ report.date_last_progress|date:"H:i" }}</small>
+                </div>
+            </td>
             <td class="align-middle"  style="text-align:center">
                 {% if report.urgency == 1%}
                 <a class="btn btn-outline-danger btn-sm mt-1 mb-1" href="{% url 'report-detail' report.pk %}">
@@ -33,13 +42,6 @@
                 <a class="btn btn-outline-secondary btn-sm mt-1 mb-1" href="{% url 'report-detail' report.pk %}">
                      {{report.title}}
                 </a>
-                {% endif %}
-            </td>
-            <td class="align-middle"  style="text-align:center">
-                {% if report.progress == 1 %}
-                <span class="btn btn-primary btn-sm mt-1 mb-1 disabled" >
-                     ✓
-                </span>
                 {% endif %}
             </td>
             <td class="align-middle"  style="text-align:center">
@@ -63,6 +65,17 @@
                 </span>
                 {% endif %}
             </td>
+            <td class="align-middle">
+                {% if report.progress_note|length > 140 %}
+                <span class="text-muted" >
+                     {{report.progress_note|slice:140}} ...
+                </span>
+                {% elif report.progress_note %}
+                <span class="text-muted" >
+                     {{report.progress_note}}
+                </span>
+                {% endif %}
+            </td>
         </tr>
         {% endfor %}
     </table>
@@ -70,35 +83,31 @@
 <br>
 <div class="card card-body">
     <div class="mb-1">
-    <h3>Finished</h3>
+    <h3>Finished ({{reports_finished.count}})</h3>
     </div>
     <table class="table table-sm table-hover table-responsive">
         <tr>
+            <th class="align-middle" style="text-align:center"></th>
             <th class="align-middle" style="text-align:center">Report</th>
             <th class="align-middle" style="text-align:center">Resolved</th>
             <th class="align-middle" style="text-align:center">Postponed</th>
             <th class="align-middle" style="text-align:center">Failed</th>
+            <th class="align-middle" style="text-align:center">Note</th>
         </tr>
         {% for report in reports_finished %}
         <tr>
             <td class="align-middle"  style="text-align:center">
-                {% if report.urgency == 1%}
-                <a class="btn btn-outline-danger btn-sm mt-1 mb-1" href="{% url 'report-detail' report.pk %}">
-                     {{report.title}}
-                </a>
-                {% elif report.urgency == 2 %}
-                <a class="btn btn-outline-warning btn-sm mt-1 mb-1" href="{% url 'report-detail' report.pk %}">
-                     {{report.title}}
-                </a>
-                {% elif report.urgency == 3 %}
-                <a class="btn btn-outline-success btn-sm mt-1 mb-1" href="{% url 'report-detail' report.pk %}">
-                     {{report.title}}
-                </a>
-                {% else %}
+                <div>
+                <small class="text-muted">{{ report.date_last_progress|date:"dMy" }}</small>
+                </div>
+                <div>
+                <small class="text-muted">{{ report.date_last_progress|date:"H:i" }}</small>
+                </div>
+            </td>
+            <td class="align-middle"  style="text-align:center">
                 <a class="btn btn-outline-secondary btn-sm mt-1 mb-1" href="{% url 'report-detail' report.pk %}">
                      {{report.title}}
                 </a>
-                {% endif %}
             </td>
             <td class="align-middle"  style="text-align:center">
                 {% if report.progress == 6 %}
@@ -118,6 +127,64 @@
                 {% if report.progress == 8 %}
                 <span class="btn btn-primary btn-sm mt-1 mb-1 disabled" >
                      ✓
+                </span>
+                {% endif %}
+            </td>
+            <td class="align-middle">
+                {% if report.progress_note|length > 140 %}
+                <span class="text-muted" >
+                     {{report.progress_note|slice:140}} ...
+                </span>
+                {% elif report.progress_note %}
+                <span class="text-muted" >
+                     {{report.progress_note}}
+                </span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+<br>
+<div class="card card-body">
+    <div class="mb-1">
+    <h3>Not Approved ({{reports_not_approved.count}})</h3>
+    </div>
+    <table class="table table-sm table-hover table-responsive">
+        <tr>
+            <th class="align-middle" style="text-align:center"></th>
+            <th class="align-middle" style="text-align:center">Report</th>
+            <th class="align-middle" style="text-align:center">Reporter</th>
+            <th class="align-middle" style="text-align:center">Note</th>
+        </tr>
+        {% for report in reports_not_approved %}
+        <tr>
+            <td class="align-middle"  style="text-align:center">
+                <div>
+                <small class="text-muted">{{ report.date_last_progress|date:"dMy" }}</small>
+                </div>
+                <div>
+                <small class="text-muted">{{ report.date_last_progress|date:"H:i" }}</small>
+                </div>
+            </td>
+            <td class="align-middle"  style="text-align:center">
+                <a class="btn btn-outline-secondary btn-sm mt-1 mb-1" href="{% url 'report-detail' report.pk %}">
+                     {{report.title}}
+                </a>
+            </td>
+            <td class="align-middle"  style="text-align:center">
+                <a class="btn btn-outline-secondary btn-sm mt-1 mb-1" href="{% url 'user-reports' report.reporter.username %}">
+                     {{report.reporter}}
+                </a>
+            </td>
+            <td class="align-middle">
+                {% if report.progress_note|length > 140 %}
+                <span class="text-muted" >
+                     {{report.progress_note|slice:140}} ...
+                </span>
+                {% elif report.progress_note %}
+                <span class="text-muted" >
+                     {{report.progress_note}}
                 </span>
                 {% endif %}
             </td>

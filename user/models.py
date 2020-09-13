@@ -2,12 +2,88 @@ from django.db import models
 from django.contrib.auth.models import User
 from PIL import Image
 from report.models import Tag
+from django.utils import timezone
+
 
 # Create your models here.
+class Unit(models.Model):
+    class Status(models.IntegerChoices):
+        Inactive = 0
+        Active = 1
+
+    name = models.CharField(max_length=100, null=True)
+    superior = models.ForeignKey("self", on_delete=models.SET_NULL, related_name='subordinate_set', null=True)
+    head = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    date_created = models.DateTimeField(default=timezone.now, null=True, blank=True)
+    date_deactivated = models.DateTimeField(null=True, blank=True)
+    status = models.IntegerField(choices=Status.choices, default=1, null=True, blank=True)
+    #boolean status active/inactive
+
+    def __str__(self):
+        return f'{self.name}'
+
+    def level(self):
+        lev = 1
+        temp = self
+        while temp.superior and lev < 20:
+            lev += 1
+            temp = temp.superior
+        if lev < 20:
+            return lev
+        else:
+            return "loop error"
+
+    def superior_print(self):
+        if self.level() != "loop error":
+            temp = self
+            superiorlist = []
+            while temp.superior:
+                superiorlist.append(temp.superior)
+                temp = temp.superior
+            indent = ""
+            superiorlist.reverse()
+            for superior in superiorlist:
+                print(indent + superior.name)
+                indent = indent + "   "
+            print(indent + self.name)
+        else:
+            print("loop error")
+
+    def subordinate_recursive(self, lev):
+        if lev>=0 and lev<=20:
+            indent = "   " * lev
+            print(indent + self.name)
+            lev = lev + 1
+            for sub in self.subordinate_set.all():
+                sub.subordinate_recursive(lev)
+        else:
+            print("loop error")
+
+
+    def subordinate_print(self):
+        if self.level() != "loop error":
+            unit = self
+            lev = 0
+            unit.subordinate_recursive(lev)
+        else:
+            print("loop error")
+
+    """
+    for unit in Unit.objects.filter(superior=None):
+         print(unit.name)
+         for sub1 in unit.subordinate_set.all():
+                 print("   " + sub1.name)
+                 for sub2 in sub1.subordinate_set.all():
+                         print("      " + sub2.name)
+                         for sub3 in sub2.subordinate_set.all():
+                                 print("         " + sub3.name)
+    """
+
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
     image = models.ImageField(default='default.jpg', upload_to='profile_pics')
     tag = models.ManyToManyField(Tag, related_name='subscriber_set')
+    unit = models.ForeignKey(Unit, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         return f'{self.user.username} Profile'
@@ -21,3 +97,11 @@ class Profile(models.Model):
             output_size = (300, 300)
             img.thumbnail(output_size)
             img.save(self.image.path)
+
+class CareerHistory(models.Model):
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    unit = models.ForeignKey(Unit, on_delete=models.SET_NULL, null=True, blank=True)
+    job = models.CharField(max_length=100, null=True, blank=True)
+    date_started = models.DateTimeField(null=True, blank=True)
+    date_ended = models.DateTimeField(null=True, blank=True)
+
