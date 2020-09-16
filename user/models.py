@@ -13,7 +13,7 @@ class Unit(models.Model):
 
     name = models.CharField(max_length=100, null=True)
     superior = models.ForeignKey("self", on_delete=models.SET_NULL, related_name='subordinate_set', null=True)
-    head = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    head = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True)
     date_created = models.DateTimeField(default=timezone.now, null=True, blank=True)
     date_deactivated = models.DateTimeField(null=True, blank=True)
     status = models.IntegerField(choices=Status.choices, default=1, null=True, blank=True)
@@ -25,10 +25,10 @@ class Unit(models.Model):
     def level(self):
         lev = 1
         temp = self
-        while temp.superior and lev < 20:
+        while temp.superior and lev < 30:
             lev += 1
             temp = temp.superior
-        if lev < 20:
+        if lev < 30:
             return lev
         else:
             return "loop error"
@@ -50,7 +50,7 @@ class Unit(models.Model):
             print("loop error")
 
     def subordinate_recursive(self, lev):
-        if lev>=0 and lev<=20:
+        if lev>=0 and lev<=30:
             indent = "   " * lev
             print(indent + self.name)
             lev = lev + 1
@@ -68,16 +68,6 @@ class Unit(models.Model):
         else:
             print("loop error")
 
-    """
-    for unit in Unit.objects.filter(superior=None):
-         print(unit.name)
-         for sub1 in unit.subordinate_set.all():
-                 print("   " + sub1.name)
-                 for sub2 in sub1.subordinate_set.all():
-                         print("      " + sub2.name)
-                         for sub3 in sub2.subordinate_set.all():
-                                 print("         " + sub3.name)
-    """
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
