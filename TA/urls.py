@@ -23,14 +23,19 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('report.urls')),
-    path('register/', userview.register, name='register'),
+
     path('login/', authview.LoginView.as_view(template_name='user/login.html'), name='login'),
     path('logout/', authview.LogoutView.as_view(template_name='user/logout.html'), name='logout'),
     path('password-reset/', authview.PasswordResetView.as_view(template_name='user/password_reset.html'), name='password_reset'),
     path('password-reset/done/', authview.PasswordResetDoneView.as_view(template_name='user/password_reset_done.html'), name='password_reset_done'),
     path('password-reset-confirm/<uidb64>/<token>/', authview.PasswordResetConfirmView.as_view(template_name='user/password_reset_confirm.html'), name='password_reset_confirm'),
-    path('profile/', userview.profile, name='profile'),
     path('password-reset-complete/', authview.PasswordResetCompleteView.as_view(template_name='user/password_reset_complete.html'),name='password_reset_complete'),
+
+    path('register/', userview.register, name='register'),
+    path('profile/', userview.profile, name='profile'),
+
+    path('unit-new/', userview.UnitCreateView.as_view(), name='unit-create'),
+    path('unit/<int:pk>', userview.UnitDetail, name='unit-detail'),
 ]
 
 if settings.DEBUG:

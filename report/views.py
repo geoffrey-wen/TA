@@ -222,5 +222,4 @@ def ProgressSubscribed(request):
                'reports_not_approved' : reports_not_approved}
     return render(request, 'report/progress_subscribed.html', context)
 
-# def ProgressSubscribed(request):
 # def ProgressList(request):

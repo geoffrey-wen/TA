@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<form id="unit-form">
+    {% csrf_token %}
+<div class="content-section">
+    <div class="row">
+        <div class="col">
+    <h1 class="mb-3">{{ unit.name }}</h1>
+        </div>
+        <div class="col-2 mt-2 mr-2">
+    <button class="btn btn-outline-info" id="submit">Save</button>
+        </div>
+    </div>
+    <div class="input-group mb-2">
+        <span class='text-muted mr-2 mt-1'>Superior Unit :</span>
+            <select class="custom-select" name="superior" required>
+                <option value={{unit.superior.pk}} selected>{{unit.superior.name}}</option>
+                {% for i in loopless_unit %}
+                    <option value={{i.pk}}>{{i.name}}</option>
+                {% endfor %}
+            </select>
+    </div>
+    <div class="input-group mb-2">
+        <span class='text-muted mr-2 mt-1'>Head :</span>
+            <select class="custom-select" name="head" required>
+                <option value={{unit.head.pk}} selected>{{unit.head.username}}</option>
+                {% for user in members %}
+                    <option value={{user.user.pk}}>{{user.user.username}}</option>
+                {% endfor %}
+                {% for user in unitless_user %}
+                    <option value={{user.pk}}>{{user.username}}</option>
+                {% endfor %}
+            </select>
+    </div>
+    <div class="mb-2">
+        <span class='text-muted mr-2 mt-1'>Member(s) :</span>
+        <div class="float-right">
+        <button class="btn btn-sm btn-outline-primary" id="add-more">Add Member(s)</button>
+        </div>
+    </div>
+    <div class="mt-3" id="wrapper">
+        {% for member in members %}
+        <div class="input-group mb-2">
+            <select class="custom-select" name="member[]">
+                <option value={{member.user.pk}} selected>{{member.user.username}}</option>
+                {% for user in unitless_user %}
+                <option value={{user.pk}}>{{user.username}}</option>
+                {% endfor %}
+            </select>
+        <input class="form-control" type="Text" placeholder="Job" name="job[]" value="">
+        <button class="btn btn-sm btn-outline-danger ml-1" id="remove-button">Remove</button>
+        </div>
+        {% endfor%}
+    </div>
+    <div class="mb-2">
+        <span class='text-muted'>Date Created : {{unit.date_created|date:'d F Y'}}</span>
+    </div>
+    {% if unit.status == 0 %}
+    <div class="mb-2">
+        <span class='text-muted'>Date Deactivated : {{unit.date_deactivated|date:'d F Y'}}</span>
+    </div>
+    {% endif %}
+</div>
+
+<div class="content-section">
+    <h2 class="mb-2">Hierarchy</h2>
+    {% for superior in unit.superior_list%}
+    <div>
+        {% with ''|center:superior.level as range %}
+        {% for a in range %}
+            <span class="ml-4"></span>
+        {% endfor %}
+        {% endwith %}
+        <span><a class="btn btn-outline-secondary btn-sm mt-1" href="{% url 'unit-detail' superior.pk %}">{{superior.name}}</a></span>
+    </div>
+    {% endfor %}
+    <div>
+        {% with ''|center:unit.level as range %}
+        {% for a in range %}
+            <span class="ml-4"></span>
+        {% endfor %}
+        {% endwith %}
+        <span><a class="btn btn-secondary btn-sm mt-1" href="{% url 'unit-detail' unit.pk %}">{{unit.name}}</a></span>
+    </div>
+    {% for subordinate in unit.subordinate_list%}
+    <div>
+        {% with ''|center:subordinate.level as range %}
+        {% for a in range %}
+            <span class="ml-4"></span>
+        {% endfor %}
+        {% endwith %}
+        <span><a class="btn btn-outline-secondary btn-sm mt-1" href="{% url 'unit-detail' subordinate.pk %}">{{subordinate.name}}</a></span>
+    </div>
+    {% endfor %}
+</div>
+<div id="url-div" url="{% url 'unit-detail' unit.pk %}"></div>
+</form>
+{% endblock%}
+
+{% block jquery %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            const addMoreButton = $("#add-more");
+            const wrapper = $('#wrapper');
+            const submitFormButton = $("#submit");
+            var divurl = document.getElementById('url-div').getAttribute('url');
+
+
+            let inputIndex = 0;
+            addMoreButton.on("click", function(e) {
+                e.preventDefault();
+                wrapper.append(`
+                    <div class="input-group mb-2">
+                        <select class="custom-select" name="member[]">
+                            <option value=0 selected hidden> </option>
+                            {% for user in unitless_user %}
+                            <option value={{user.pk}}>{{user.username}}</option>
+                            {% endfor %}
+                        </select>
+                    <input class="form-control" type="text" placeholder="Job" name="job[]" value="">
+                    <button class="btn btn-sm btn-outline-danger ml-1" id="remove-button">Remove</button>
+                    </div>`
+                );
+                inputIndex++;
+            })
+
+            wrapper.on('click', '#remove-button', function(e, attr) {
+                e.preventDefault();
+                $(this).parent('div').remove();
+            })
+
+            submitFormButton.on('click', function(e) {
+                e.preventDefault()
+                const unitForm = document.getElementById('unit-form');
+                const fd = new FormData(unitForm);
+
+                console.log(fd.get('foo[0]'))
+
+                $.ajax({
+                    url: divurl,
+                    type: 'POST',
+                    data: fd,
+                    processData: false,
+                    contentType: false,
+                    mimeType: 'multipart/form-data',
+                    success: function(returndata){
+                        window.location.href = divurl;
+                    }
+                })
+            });
+        });
+    </script>
+{% endblock%}
