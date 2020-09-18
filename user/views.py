@@ -7,6 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Unit, Profile, CareerHistory
 from django.http import HttpResponse
 from django.contrib.auth.models import User
+import datetime
 # Create your views here.
 
 def register(request):
@@ -63,60 +64,97 @@ def UnitDetail(request, pk):
     member_histories = []
     for member in members:
         temp = CareerHistory.objects.filter(user = member.user)
-        if temp:
-            temp = temp.order_by('date_created').last()
+        temp = temp.order_by('date_started').last()
         member_histories.append(temp)
-    print(member_histories)
-
 
     if request.method == 'POST':
-        superior_pk = int(request.POST.get('superior'))
+        if unit.level() > 1:
+            superior_pk = int(request.POST.get('superior'))
         head_pk = int(request.POST.get('head'))
         member_list = request.POST.getlist("member[]")
         job_list = request.POST.getlist("job[]")
 
-        new_superior = Unit.objects.get(pk = superior_pk)
-        if (new_superior == unit) or (new_superior in unit.subordinate_list()):
-            print("huyu")
-            #message error
-        elif new_superior != unit.superior:
-            unit.superior = new_superior
-            unit.save()
-            #message success
+        if unit.level() > 1:
+            new_superior = Unit.objects.get(pk = superior_pk)
+            if (new_superior == unit) or (new_superior in unit.subordinate_list()):
+                print("huyu")
+                messages.error(request, f"{new_superior.name} can't be added as Superior ")
+            elif new_superior != unit.superior:
+                unit.superior = new_superior
+                unit.save()
+                messages.success(request, f"{new_superior.name} has been set as {unit.name} superior")
 
-        if unit.head.pk != head_pk:
-            unit.head = User.objects.get(pk=head_pk)
-            unit.save()
-            #message_success
-            #add history
+        if head_pk:
+            new_head = User.objects.get(pk=head_pk)
+            if unit.head != new_head:
+                if unit.head:
+                    former_head = User.objects.get(pk = unit.head.pk)
+                    temp = former_head.careerhistory_set.last()
+                    temp.date_ended = datetime.datetime.now()
+                    temp.save()
+                    messages.success(request, f"{former_head.username} has been removed from {unit.name}")
+                unit.head = new_head
+                unit.save()
+                CareerHistory.objects.create(
+                    user=new_head,
+                    unit=unit,
+                    job='Head',
+                    date_started=datetime.datetime.now()
+                )
+                messages.success(request, f"{new_head.username} has been set as head of {unit.name}")
+        else:
+            messages.error(request, f"Please set the head of {unit.name} ")
 
         valid_member = []
         valid_job = []
         for i in range(len(member_list)):
             if (member_list[i] != '0') and (job_list[i] != ''):
-                valid_member.append(User.objects.get(pk = int(member_list[i])).profile)
-                valid_job.append(job_list[i])
+                temp = User.objects.get(pk = int(member_list[i])).profile
+                if temp in valid_member:
+                    messages.warning(request, f"There is duplicate of {temp.user.username}")
+                else:
+                    valid_member.append(temp)
+                    valid_job.append(job_list[i])
             else:
-                print('huyu')
-                #message warning
+                if member_list[i] == '0' and job_list[i] != '':
+                    messages.warning(request, f"There is no user for {job_list[i]}")
+                if member_list[i] != '0' and job_list[i] == '':
+                    messages.warning(request, f"There is no job for {User.objects.get(pk = int(member_list[i])).username}")
+
 
         for member in members:
             if not member in valid_member:
                 member.unit = None
                 member.save()
-                #message success
-                #add history
+                temp = CareerHistory.objects.filter(user=member.user).last()
+                temp.date_ended = datetime.datetime.now()
+                temp.save()
+                messages.success(request, f"{member.user.username} has been removed from {unit.name}")
+            else :
+                index = valid_member.index(member)
+                temp = member.user.careerhistory_set.last()
+                if valid_job[index] != temp.job:
+                    temp.date_ended = datetime.datetime.now()
+                    temp.save()
+                    CareerHistory.objects.create(
+                        user = member.user,
+                        unit = unit,
+                        job = valid_job[index],
+                        date_started = datetime.datetime.now()
+                    )
+                    messages.success(request, f"{member.user.username}'s job has been changed from {temp.job} to {valid_job[index]}")
 
-        for member in valid_member:
-            if not member in members:
-                member.unit = unit
-                member.save()
-                #message success
-                #add history
-                #else, bila unit sama periksa careehhistory
-                #bila tidak punya career history
-                #atau bila job di career history berubah
-                #add history
+        for i in range(len(valid_member)):
+            if not valid_member[i] in members:
+                valid_member[i].unit = unit
+                valid_member[i].save()
+                CareerHistory.objects.create(
+                    user = valid_member[i].user,
+                    unit = unit,
+                    job = valid_job[i],
+                    date_started = datetime.datetime.now()
+                )
+                messages.success(request, f"{valid_member[i].user.username} has been added to {unit.name}")
 
         return HttpResponse()
 

@@ -13,6 +13,7 @@
     <button class="btn btn-outline-info" id="submit">Save</button>
         </div>
     </div>
+    {% if unit.level > 1%}
     <div class="input-group mb-2">
         <span class='text-muted mr-2 mt-1'>Superior Unit :</span>
             <select class="custom-select" name="superior" required>
@@ -22,13 +23,15 @@
                 {% endfor %}
             </select>
     </div>
+    {% endif %}
     <div class="input-group mb-2">
         <span class='text-muted mr-2 mt-1'>Head :</span>
             <select class="custom-select" name="head" required>
+                {% if unit.head %}
                 <option value={{unit.head.pk}} selected>{{unit.head.username}}</option>
-                {% for user in members %}
-                    <option value={{user.user.pk}}>{{user.user.username}}</option>
-                {% endfor %}
+                {% else %}
+                <option value=0 selected hidden> </option>
+                {% endif %}
                 {% for user in unitless_user %}
                     <option value={{user.pk}}>{{user.username}}</option>
                 {% endfor %}
@@ -37,7 +40,7 @@
     <div class="mb-2">
         <span class='text-muted mr-2 mt-1'>Member(s) :</span>
         <div class="float-right">
-        <button class="btn btn-sm btn-outline-primary" id="add-more">Add Member(s)</button>
+        <button class="btn btn-sm btn-outline-info" id="add-more">Add Member(s)</button>
         </div>
     </div>
     <div class="mt-3" id="wrapper">
@@ -49,7 +52,7 @@
                 <option value={{user.pk}}>{{user.username}}</option>
                 {% endfor %}
             </select>
-        <input class="form-control" type="Text" placeholder="Job" name="job[]" value="">
+        <input class="form-control" type="Text" placeholder="Job" name="job[]" value="{{member.user.careerhistory_set.all.last.job}}">
         <button class="btn btn-sm btn-outline-danger ml-1" id="remove-button">Remove</button>
         </div>
         {% endfor%}

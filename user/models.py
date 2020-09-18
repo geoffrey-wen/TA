@@ -110,3 +110,9 @@ class CareerHistory(models.Model):
     date_ended = models.DateTimeField(null=True, blank=True)
     #kalau date started dan ended sama, maka dihapus
 
+    def __str__(self):
+        if self.date_ended:
+            return f'[ENDED] {self.user.username} | {self.unit.name} | {self.job} | {self.date_started.strftime("%d%b%y")} - {self.date_ended.strftime("%d%b%y")}'
+        else:
+            return f'[STILL] {self.user.username} | {self.unit.name} | {self.job} | {self.date_started.strftime("%d%b%y")}'
+
