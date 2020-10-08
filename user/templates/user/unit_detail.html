@@ -112,7 +112,6 @@
             var divurl = document.getElementById('url-div').getAttribute('url');
 
 
-            let inputIndex = 0;
             addMoreButton.on("click", function(e) {
                 e.preventDefault();
                 wrapper.append(`
@@ -127,7 +126,6 @@
                     <button class="btn btn-sm btn-outline-danger ml-1" id="remove-button">Remove</button>
                     </div>`
                 );
-                inputIndex++;
             })
 
             wrapper.on('click', '#remove-button', function(e, attr) {

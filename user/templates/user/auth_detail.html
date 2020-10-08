@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<form id="auth-form">
+    {% csrf_token %}
+<div class="content-section">
+    <div class="row">
+        <div class="col">
+    <h1 class="mb-3">Manage Authorization</h1>
+        </div>
+        <div class="col-2 mt-2 mr-2">
+    <button class="btn btn-outline-info" id="submit">Save</button>
+        </div>
+    </div>
+    {% for auth in auth_list %}
+    <h3 class="mb-1">{{ auth.0.label }}</h3>
+    <div class="mt-3" id="wrapper-user-{{auth.0.value}}">
+        <div class="row">
+            <div class="col">
+                <h5 class="mb-1 ml-3">User</h5>
+            </div>
+            <div class="float-right mr-2 mb-2">
+                <button class="btn btn-sm btn-outline-info" id="add-more-user-{{auth.0.value}}">Add User(s)</button>
+            </div>
+        </div>
+    </div>
+    <div class="mt-3" id="wrapper-unit-{{auth.0.value}}">
+        <div class="row">
+            <div class="col">
+                <h5 class="mb-1 ml-3">Unit</h5>
+            </div>
+            <div class="float-right mr-2 mb-2">
+                <button class="btn btn-sm btn-outline-info" id="add-more-unit-{{auth.0.value}}">Add Unit(s)</button>
+            </div>
+        </div>
+    </div>
+    <div class="mt-3" id="wrapper-level-{{auth.0.value}}">
+        <div class="row">
+            <div class="col">
+                <h5 class="mb-1 ml-3">Level</h5>
+            </div>
+            <div class="float-right mr-2 mb-2">
+                <button class="btn btn-sm btn-outline-info" id="add-more-level-{{auth.0.value}}">Add Level(s)</button>
+            </div>
+        </div>
+    </div>
+    {% endfor%}
+</div>
+<div id="num-div" url="{{ auth_list|length }}" ></div>
+</form>
+{% endblock%}
+
+{% block jquery %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            const submitFormButton = $("#submit");
+            var num = document.getElementById('num-div').getAttribute('url');
+            var addMoreUserButton = [];
+            var addMoreUnitButton = [];
+            var addMoreLevelButton = [];
+            var wrapperUser = []
+            var wrapperUnit = []
+            var wrapperLevel = []
+            var i;
+
+            function onButtonClick(e) {
+                e.preventDefault();
+                $(this).parent('div').parent('div').append(`
+                    <div class="input-group mb-2">
+                        <select class="custom-select" name="member[]">
+                            <option value=0 selected hidden> </option>
+                            {% for user in unitless_user %}
+                            <option value={{user.pk}}>{{user.username}}</option>
+                            {% endfor %}
+                        </select>
+                    <input class="form-control" type="text" placeholder="Job" name="` + e.data.name + `" value="">
+                    <button class="btn btn-sm btn-outline-danger ml-1" id="remove-button">Remove</button>
+                    </div>` + e.data.name
+                );
+            }
+
+            function removeElement(e) {
+                e.preventDefault();
+                $(this).parent('div').remove();
+            }
+
+            for (i = 0; i < num; i++) {
+            addMoreUserButton.push($("#add-more-user-" + (i+1)))
+            addMoreUnitButton.push($("#add-more-unit-" + (i+1)))
+            addMoreLevelButton.push($("#add-more-level-" + (i+1)))
+            wrapperUser.push($("#wrapper-user-" + (i+1)))
+            wrapperUnit.push($("#wrapper-unit-" + (i+1)))
+            wrapperLevel.push($("#wrapper-level-" + (i+1)))
+
+            addMoreUserButton[i].on("click", {name: "user" + (i+1) + "[]"}, onButtonClick)
+            addMoreUnitButton[i].on("click", {name: "unit" + (i+1) + "[]"}, onButtonClick)
+            addMoreLevelButton[i].on("click", {name: "level" + (i+1) + "[]"}, onButtonClick)
+            wrapperUser[i].on('click', '#remove-button', removeElement)
+            wrapperUnit[i].on('click', '#remove-button', removeElement)
+            wrapperLevel[i].on('click', '#remove-button', removeElement)
+            }
+
+
+            submitFormButton.on('click', function(e) {
+                e.preventDefault()
+                const authForm = document.getElementById('auth-form');
+                const fd = new FormData(authForm);
+
+                console.log(fd.get('foo[0]'))
+
+                $.ajax({
+                    url: 'auth',
+                    type: 'POST',
+                    data: fd,
+                    processData: false,
+                    contentType: false,
+                    mimeType: 'multipart/form-data',
+                    success: function(returndata){
+                        window.location.href = 'auth';
+                    }
+                })
+            });
+        });
+    </script>
+{% endblock%}

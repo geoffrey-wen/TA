@@ -102,6 +102,16 @@ class Profile(models.Model):
             img.thumbnail(output_size)
             img.save(self.image.path)
 
+    def level(self):
+        if self.unit:
+            return self.unit.level() + 1
+        else:
+            if self.user.unit:
+                return self.user.unit.level()
+            else:
+                return '-'
+
+
 class CareerHistory(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     unit = models.ForeignKey(Unit, on_delete=models.SET_NULL, null=True, blank=True)
@@ -116,3 +126,17 @@ class CareerHistory(models.Model):
         else:
             return f'[STILL] {self.user.username} | {self.unit.name} | {self.job} | {self.date_started.strftime("%d%b%y")}'
 
+class Auth(models.Model):
+    class Feature(models.IntegerChoices):
+        create_a_report = 1
+        view_reports = 2
+        create_a_tag = 3
+        take_a_report = 4
+        view_profile_info = 5
+        manage_organization = 6
+        manage_authorization = 7
+
+    feature = models.IntegerField(choices=Feature.choices, null=True)
+    auth_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    auth_unit = models.ForeignKey(Unit, on_delete=models.SET_NULL, null=True, blank=True)
+    auth_level = models.IntegerField(null=True, blank=True)

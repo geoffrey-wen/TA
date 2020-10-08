@@ -36,6 +36,9 @@ urlpatterns = [
 
     path('unit-new/', userview.UnitCreateView.as_view(), name='unit-create'),
     path('unit/<int:pk>', userview.UnitDetail, name='unit-detail'),
+
+    path('auth', userview.AuthDetail, name='auth-detail'),
+
 ]
 
 if settings.DEBUG:

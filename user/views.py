@@ -4,10 +4,11 @@ from .form import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
 from django.contrib.auth.decorators import login_required
 from django.views.generic import CreateView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import Unit, Profile, CareerHistory
+from .models import Unit, Profile, CareerHistory, Auth
 from django.http import HttpResponse
 from django.contrib.auth.models import User
 import datetime
+import json
 # Create your views here.
 
 def register(request):
@@ -164,6 +165,23 @@ def UnitDetail(request, pk):
                 'loopless_unit' : loopless_unit.order_by('name')}
     return render(request, 'user/unit_detail.html', context)
 
+def AuthDetail(request):
+    if not request.user.username:
+        return redirect('/login/?next=%s' % request.path)
+    #list(Auth.Feature)[index].value/label/name
+    auth_list = []
+    for feature in list(Auth.Feature):
+        temp = [feature]
+        temp.append(Auth.objects.filter(feature = feature.value).exclude(auth_user = None))
+        temp.append(Auth.objects.filter(feature = feature.value).exclude(auth_unit = None))
+        temp.append(Auth.objects.filter(feature = feature.value).exclude(auth_level = None))
+        auth_list.append(temp)
 
+    if request.method == 'POST':
+        print('send')
+        #return HttpResponse(json.dumps([]))
+
+    context = {'auth_list' : auth_list,}
+    return render(request, 'user/auth_detail.html', context)
 
 
