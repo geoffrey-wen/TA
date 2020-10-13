@@ -78,7 +78,6 @@ def UnitDetail(request, pk):
         if unit.level() > 1:
             new_superior = Unit.objects.get(pk = superior_pk)
             if (new_superior == unit) or (new_superior in unit.subordinate_list()):
-                print("huyu")
                 messages.error(request, f"{new_superior.name} can't be added as Superior ")
             elif new_superior != unit.superior:
                 unit.superior = new_superior
@@ -89,7 +88,8 @@ def UnitDetail(request, pk):
             new_head = User.objects.get(pk=head_pk)
             if unit.head != new_head:
                 if unit.head:
-                    former_head = User.objects.get(pk = unit.head.pk)
+                    #former_head = User.objects.get(pk = unit.head.pk)
+                    former_head = unit.head
                     temp = former_head.careerhistory_set.last()
                     temp.date_ended = datetime.datetime.now()
                     temp.save()
@@ -177,11 +177,68 @@ def AuthDetail(request):
         temp.append(Auth.objects.filter(feature = feature.value).exclude(auth_level = None))
         auth_list.append(temp)
 
+    users = User.objects.all()
+    units = Unit.objects.all()
+    levels = list(set([unit.level() for unit in units]))
+
     if request.method == 'POST':
         print('send')
-        #return HttpResponse(json.dumps([]))
+        post_data = []
+        for i in range(len(auth_list)):
+            temp = []
+            temp.append(request.POST.getlist(f"user{i+1}[]"))
+            temp.append(request.POST.getlist(f"unit{i+1}[]"))
+            temp.append(request.POST.getlist(f"level{i+1}[]"))
+            post_data.append(temp)
 
-    context = {'auth_list' : auth_list,}
+        for i in range(len(auth_list)):
+            for j in range(3):
+                for item in auth_list[i][j+1]:
+                    if j == 0:
+                        if not str(item.auth_user.pk) in post_data[i][j]:
+                            temp = item.auth_user
+                            item.delete()
+                            messages.success(request, f"{temp}'s \"{auth_list[i][0].label}\" authorization has been revoked!")
+                    if j == 1:
+                        if not str(item.auth_unit.pk) in post_data[i][j]:
+                            temp = item.auth_unit
+                            item.delete()
+                            messages.success(request, f"{temp}'s \"{auth_list[i][0].label}\" authorization has been revoked!")
+                    if j == 2:
+                        if not str(item.auth_level) in post_data[i][j]:
+                            temp = item.auth_level
+                            item.delete()
+                            messages.success(request, f"Level {temp} users' \"{auth_list[i][0].label}\" authorization has been revoked!")
+                for datum in post_data[i][j]:
+                    if j == 0 and datum != '0':
+                        if not auth_list[i][j+1].filter(auth_user__pk = datum):
+                            temp = User.objects.get(pk = datum)
+                            Auth.objects.create(
+                                feature = i+1,
+                                auth_user = temp
+                            )
+                            messages.success(request, f"\"{auth_list[i][0].label}\" authorization has been given to {temp.username}!")
+                    if j == 1 and datum != '0':
+                        if not auth_list[i][j+1].filter(auth_unit__pk = datum):
+                            temp = Unit.objects.get(pk=datum)
+                            Auth.objects.create(
+                                feature = i+1,
+                                auth_unit = temp
+                            )
+                            messages.success(request, f"\"{auth_list[i][0].label}\" authorization has been given to {temp.name}!")
+                    if j == 2 and datum != '0':
+                        if not auth_list[i][j+1].filter(auth_level = datum):
+                            Auth.objects.create(
+                                feature = i+1,
+                                auth_level = datum
+                            )
+                            messages.success(request, f"\"{auth_list[i][0].label}\" authorization has been given to level {datum} users !")
+        return HttpResponse()
+
+    context = {'auth_list' : auth_list,
+               'users' : users,
+               'units' : units,
+               'levels' : levels}
     return render(request, 'user/auth_detail.html', context)
 
 

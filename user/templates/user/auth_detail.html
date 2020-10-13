@@ -15,35 +15,68 @@
     </div>
     {% for auth in auth_list %}
     <h3 class="mb-1">{{ auth.0.label }}</h3>
-    <div class="mt-3" id="wrapper-user-{{auth.0.value}}">
-        <div class="row">
-            <div class="col">
-                <h5 class="mb-1 ml-3">User</h5>
-            </div>
-            <div class="float-right mr-2 mb-2">
-                <button class="btn btn-sm btn-outline-info" id="add-more-user-{{auth.0.value}}">Add User(s)</button>
-            </div>
+    <div class="row">
+        <div class="col">
+            <h5 class="mb-1 ml-3">User</h5>
+        </div>
+        <div class="float-right mr-2 mb-2">
+            <button class="btn btn-sm btn-outline-info" id="add-more-user-{{auth.0.value}}">Add User(s)</button>
         </div>
     </div>
-    <div class="mt-3" id="wrapper-unit-{{auth.0.value}}">
-        <div class="row">
-            <div class="col">
-                <h5 class="mb-1 ml-3">Unit</h5>
-            </div>
-            <div class="float-right mr-2 mb-2">
-                <button class="btn btn-sm btn-outline-info" id="add-more-unit-{{auth.0.value}}">Add Unit(s)</button>
-            </div>
+    <div id="wrapper-user-{{auth.0.value}}">
+        {% for auth_user in auth.1 %}
+        <div class="input-group mb-2">
+            <select class="custom-select" name="user{{auth.0.value}}[]">
+                <option value={{auth_user.auth_user.pk}} selected>{{auth_user.auth_user.username}}</option>
+                {% for user in users %}
+                <option value={{user.pk}}>{{user.username}}</option>
+                {% endfor %}
+            </select>
+            <button class="btn btn-sm btn-outline-danger ml-1" id="remove-button">Remove</button>
+        </div>
+        {% endfor%}
+    </div>
+    <div class="row">
+        <div class="col">
+            <h5 class="mb-1 ml-3">Unit</h5>
+        </div>
+        <div class="float-right mr-2 mb-2">
+            <button class="btn btn-sm btn-outline-info" id="add-more-unit-{{auth.0.value}}">Add Unit(s)</button>
         </div>
     </div>
-    <div class="mt-3" id="wrapper-level-{{auth.0.value}}">
-        <div class="row">
-            <div class="col">
-                <h5 class="mb-1 ml-3">Level</h5>
-            </div>
-            <div class="float-right mr-2 mb-2">
-                <button class="btn btn-sm btn-outline-info" id="add-more-level-{{auth.0.value}}">Add Level(s)</button>
-            </div>
+    <div id="wrapper-unit-{{auth.0.value}}">
+        {% for auth_unit in auth.2 %}
+        <div class="input-group mb-2">
+            <select class="custom-select" name="unit{{auth.0.value}}[]">
+                <option value={{auth_unit.auth_unit.pk}} selected>{{auth_unit.auth_unit.name}}</option>
+                {% for unit in units %}
+                <option value={{unit.pk}}>{{unit.name}}</option>
+                {% endfor %}
+            </select>
+            <button class="btn btn-sm btn-outline-danger ml-1" id="remove-button">Remove</button>
         </div>
+        {% endfor %}
+    </div>
+    <div class="row">
+        <div class="col">
+            <h5 class="mb-1 ml-3">Level</h5>
+        </div>
+        <div class="float-right mr-2 mb-2">
+            <button class="btn btn-sm btn-outline-info" id="add-more-level-{{auth.0.value}}">Add Level(s)</button>
+        </div>
+    </div>
+    <div id="wrapper-level-{{auth.0.value}}">
+        {% for auth_level in auth.3 %}
+        <div class="input-group mb-2">
+            <select class="custom-select" name="level{{auth.0.value}}[]">
+                <option value={{auth_level.auth_level}} selected>{{auth_level.auth_level}}</option>
+                {% for level in levels %}
+                <option value={{level}}>{{level}}</option>
+                {% endfor %}
+            </select>
+            <button class="btn btn-sm btn-outline-danger ml-1" id="remove-button">Remove</button>
+        </div>
+        {% endfor %}
     </div>
     {% endfor%}
 </div>
@@ -64,22 +97,38 @@
             var wrapperUnit = []
             var wrapperLevel = []
             var i;
+            var temp;
+            var temp2;
 
             function onButtonClick(e) {
                 e.preventDefault();
-                $(this).parent('div').parent('div').append(`
+                if (e.data.type == "user"){
+                    temp = wrapperUser
+                    temp2 = `{% for user in users %}
+                             <option value={{user.pk}}>{{user.username}}</option>
+                             {% endfor %}`
+                } else if (e.data.type == "unit"){
+                    temp = wrapperUnit
+                    temp2 = `{% for unit in units %}
+                             <option value={{unit.pk}}>{{unit.name}}</option>
+                             {% endfor %}`
+                } else if (e.data.type == "level"){
+                    temp = wrapperLevel
+                    temp2 = `{% for level in levels %}
+                             <option value={{level}}>{{level}}</option>
+                             {% endfor %}`
+                }
+                temp[e.data.id - 1].append(`
                     <div class="input-group mb-2">
-                        <select class="custom-select" name="member[]">
-                            <option value=0 selected hidden> </option>
-                            {% for user in unitless_user %}
-                            <option value={{user.pk}}>{{user.username}}</option>
-                            {% endfor %}
-                        </select>
-                    <input class="form-control" type="text" placeholder="Job" name="` + e.data.name + `" value="">
+                        <select class="custom-select" name="` + e.data.type + e.data.id + `[]">
+                            <option value=0 selected hidden> </option>` +
+                            temp2 +
+                        `</select>
                     <button class="btn btn-sm btn-outline-danger ml-1" id="remove-button">Remove</button>
-                    </div>` + e.data.name
+                    </div>`
                 );
             }
+
 
             function removeElement(e) {
                 e.preventDefault();
@@ -94,9 +143,9 @@
             wrapperUnit.push($("#wrapper-unit-" + (i+1)))
             wrapperLevel.push($("#wrapper-level-" + (i+1)))
 
-            addMoreUserButton[i].on("click", {name: "user" + (i+1) + "[]"}, onButtonClick)
-            addMoreUnitButton[i].on("click", {name: "unit" + (i+1) + "[]"}, onButtonClick)
-            addMoreLevelButton[i].on("click", {name: "level" + (i+1) + "[]"}, onButtonClick)
+            addMoreUserButton[i].on("click", {type: "user", id: (i+1)}, onButtonClick)
+            addMoreUnitButton[i].on("click", {type: "unit", id: (i+1)}, onButtonClick)
+            addMoreLevelButton[i].on("click", {type: "level", id: (i+1)}, onButtonClick)
             wrapperUser[i].on('click', '#remove-button', removeElement)
             wrapperUnit[i].on('click', '#remove-button', removeElement)
             wrapperLevel[i].on('click', '#remove-button', removeElement)

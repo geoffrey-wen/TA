@@ -140,3 +140,11 @@ class Auth(models.Model):
     auth_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     auth_unit = models.ForeignKey(Unit, on_delete=models.SET_NULL, null=True, blank=True)
     auth_level = models.IntegerField(null=True, blank=True)
+
+    def __str__(self):
+        if self.auth_user:
+            return f'[USER] {self.auth_user.username}'
+        elif self.auth_unit:
+            return f'[UNIT] {self.auth_unit.name}'
+        else:
+            return f'[LEVEL] {self.auth_level}'
