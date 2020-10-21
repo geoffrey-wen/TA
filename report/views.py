@@ -1,12 +1,15 @@
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect, reverse
-from .models import Report, Tag
+from .models import Report, Tag, Collaboration, Images
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User, AnonymousUser
 from .filters import TagFilter
 from django.db.models import Case, Value, When,IntegerField
 import datetime
+from django.contrib import messages
+from user.models import PointHistory
+
 
 def About(request):
     return HttpResponse('LoremIpsum')
@@ -114,6 +117,12 @@ class TagReportListView(ListView):
 class ReportDetailView(LoginRequiredMixin, DetailView):
     model = Report
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        report = get_object_or_404(Report, pk=self.kwargs.get('pk'))
+        context['collaborations'] = Collaboration.objects.filter(report = report).order_by('date')
+        return context
+
     def post(self, request, *args, **kwargs):
         report = get_object_or_404(Report, pk=self.kwargs.get('pk'))
         user = self.request.user
@@ -122,13 +131,51 @@ class ReportDetailView(LoginRequiredMixin, DetailView):
             report.progress = 1
             report.date_last_progress = datetime.datetime.now()
             report.save()
-        if request.POST.get('progress'):
+        elif request.POST.get('collab'):
+            if request.POST.get('new-subject') and request.POST.get('new-content'):
+                try:
+                    isimage = request.FILES['new-image']
+                except:
+                    isimage = False
+                if isimage:
+                    Collaboration.objects.create(
+                        report = report,
+                        subject = request.POST.get('new-subject'),
+                        content = request.POST.get('new-content'),
+                        collaborator = user,
+                        image = request.FILES['new-image']
+                    )
+                else:
+                    Collaboration.objects.create(
+                        report = report,
+                        subject = request.POST.get('new-subject'),
+                        content = request.POST.get('new-content'),
+                        collaborator = user
+                    )
+                messages.success(request, f"A new collaboration has been made")
+            else:
+                if request.POST.get('new-subject'):
+                    messages.error(request, f"Please fill the content section !")
+                elif request.POST.get('new-content'):
+                    messages.error(request, f"Please fill the subject section !")
+        elif request.POST.get('collab-del'):
+            temp = int(request.POST.get('collab-del'))
+            temp = Collaboration.objects.get(pk = temp)
+            temp.delete()
+            messages.success(request, f"Collaboration has been deleted")
+        elif request.POST.get('progress'):
             report.progress = int(request.POST.get('progress'))
-            print(request.POST.get('progress-note'))
-            print(report.progress_note)
             report.progress_note = request.POST.get('progress-note')
-            print(report.progress_note)
-            print(request.POST.get('progress-note'))
+            if request.POST.get('point') == "":
+                messages.error(request, f"Please fill the point section !")
+            elif request.POST.get('point'):
+                report.point = int(request.POST.get('point'))
+                PointHistory.objects.create(
+                    user= report.reporter,
+                    point= int(request.POST.get('point')),
+                    note= f'Point from report: "{report.title}", pk = {report.pk}',
+                    writer= user,
+                )
             report.date_last_progress = datetime.datetime.now()
             report.save()
         return redirect('report-detail', pk = report.pk)

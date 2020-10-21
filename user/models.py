@@ -4,7 +4,7 @@ from PIL import Image
 from report.models import Tag
 from django.utils import timezone
 from django.urls import reverse
-
+from django.db.models import Sum
 
 # Create your models here.
 class Unit(models.Model):
@@ -111,6 +111,14 @@ class Profile(models.Model):
             else:
                 return '-'
 
+    def point(self):
+        temp = PointHistory.objects.filter(user__pk=self.user.pk)
+        if temp:
+            return temp.aggregate(points=Sum('point'))['points']
+        else:
+            return 0
+
+
 
 class CareerHistory(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
@@ -148,3 +156,14 @@ class Auth(models.Model):
             return f'[UNIT] {self.auth_unit.name}'
         else:
             return f'[LEVEL] {self.auth_level}'
+
+class PointHistory(models.Model):
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    point = models.IntegerField(null=True)
+    note = models.TextField(null=True)
+    date = models.DateTimeField(default=timezone.now, null=True, blank=True)
+    writer = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='writer')
+
+    def get_absolute_url(self):
+        return reverse('home')
+

@@ -39,6 +39,7 @@ urlpatterns = [
 
     path('auth', userview.AuthDetail, name='auth-detail'),
 
+    path('point-new/', userview.PointHistoryCreateView.as_view(), name='point-create'),
 ]
 
 if settings.DEBUG:

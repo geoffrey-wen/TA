@@ -4,7 +4,7 @@ from .form import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
 from django.contrib.auth.decorators import login_required
 from django.views.generic import CreateView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import Unit, Profile, CareerHistory, Auth
+from .models import Unit, Profile, CareerHistory, Auth, PointHistory
 from django.http import HttpResponse
 from django.contrib.auth.models import User
 import datetime
@@ -241,4 +241,11 @@ def AuthDetail(request):
                'levels' : levels}
     return render(request, 'user/auth_detail.html', context)
 
+class PointHistoryCreateView(LoginRequiredMixin, CreateView):
+    model = PointHistory
+    fields = ['user', 'point', 'note']
+
+    def form_valid(self, form):
+        form.instance.writer = self.request.user
+        return super().form_valid(form)
 

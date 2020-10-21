@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<form name="form" method="POST">
+<form name="form" method="POST" enctype="multipart/form-data">
     {% csrf_token %}
 <article class="media content-section">
     <img class="rounded-circle article-img" src="{{ object.reporter.profile.image.url }}">
@@ -47,8 +47,7 @@
         </div>
         {% if object.taker %}
         <div class= "mb-1" >
-        <span class='text-muted'>Progress :
-        </span>
+        <span class='text-muted'>Progress :</span>
             {% if object.taker == user %}
                 <select class="custom-select" name="progress" style="max-width: 200px;">
                     {% for level in object.TaskLevel %}
@@ -75,6 +74,27 @@
             {% else %}
             <input class="form-control mt-1" type="text" placeholder="Progress Notes"name="progress-note" >
             {% endif %}
+            {% if object.progress >= 3 %}
+                <div class="row">
+                    <div class="col-6 mt-1">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" >Point</span>
+                            </div>
+                            {% if not object.point %}
+                                <input class="form-control" type="number" placeholder="Point"name="point">
+                            {% else %}
+                                <input class="form-control bg-light" type="text" value="{{object.point}}" readonly>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if not object.point %}
+                    <div class="col-*-* mt-2">
+                        <small class="text-danger">*once filled, point can't be changed</small>
+                    </div>
+                    {% endif %}
+                </div>
+            {% endif %}
             <div class="mt-1" style="text-align:center">
             <button class="btn btn-outline-primary btn-sm btn-block" type="submit" >Save Progress</button>
             </div>
@@ -100,6 +120,62 @@
         </p>
     </div>
 </article>
+
+<div>
+    <h3>Collaboration ({{ collaborations|length }})</h3>
+</div>
+{% for collab in collaborations %}
+    <article class="media content-section">
+        <img class="rounded-circle article-img" src="{{ collab.collaborator.profile.image.url }}">
+        <div class="media-body">
+            <div class="article-metadata">
+                <div class="row">
+                    <div class="col">
+                        <a class="mr-2" href="{% url 'user-reports' object.reporter.username %}">
+                            {{ collab.collaborator }}
+                        </a>
+                        <small class="text-muted">
+                            {{ collab.date|date:"F d, Y" }}
+                        </small>
+                    </div>
+                    {% if collab.collaborator == user%}
+                    <div class="col-*-* mr-2">
+                        <button class="btn btn-outline-danger btn-sm mt-1 mb-1" name="collab-del" type="submit" value="{{collab.pk}}">Delete</button>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col mb-2">
+                    <h2 class="mt-1">
+                        {{ collab.subject }}
+                    </h2>
+                    {% if collab.image %}
+                        <div>
+                            <img class="img-fluid mx-auto d-block" style="height: 300px" src="{{ collab.image.url }}">
+                        </div>
+                    {% endif %}
+                    <p class="article-content">
+                        {{ collab.content }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </article>
+{% endfor %}
+    <article class="media content-section">
+        <img class="rounded-circle article-img" src="{{ user.profile.image.url }}">
+        <div class="media-body">
+            <div class="row">
+                <div class="col mb-2">
+                    <input type="text" name="new-subject" maxlength="100" class="testinput textInput form-control mb-2" placeholder="Subject">
+                    <input type="file" name="new-image" accept="image/*" class="clearablefileinput form-control-file mb-2">
+                    <textarea name="new-content" cols="40" rows="10" class="textarea form-control" placeholder="Content"></textarea>
+                </div>
+            </div>
+            <button class="btn btn-outline-info" name="collab" type="submit" value=True>Collaborate</button>
+        </div>
+    </article>
 </form>
 
 {% endblock %}
