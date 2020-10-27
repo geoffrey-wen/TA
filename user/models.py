@@ -143,6 +143,8 @@ class Auth(models.Model):
         view_profile_info = 5
         manage_organization = 6
         manage_authorization = 7
+        manage_points = 8
+        collaborate_on_a_report = 9
 
     feature = models.IntegerField(choices=Feature.choices, null=True)
     auth_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)

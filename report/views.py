@@ -162,7 +162,7 @@ class ReportDetailView(LoginRequiredMixin, DetailView):
             temp = int(request.POST.get('collab-del'))
             temp = Collaboration.objects.get(pk = temp)
             temp.delete()
-            messages.success(request, f"Collaboration has been deleted")
+            messages.success(request, f"A collaboration has been deleted")
         elif request.POST.get('progress'):
             report.progress = int(request.POST.get('progress'))
             report.progress_note = request.POST.get('progress-note')

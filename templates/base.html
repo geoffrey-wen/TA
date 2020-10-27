@@ -32,8 +32,9 @@
                     {% if user.is_authenticated %}
                     <a class="nav-item nav-link" href="{% url 'home' %}">Subscribed</a>
                     <a class="nav-item nav-link" href="{% url 'progress-taken' %}">Progress</a>
+                    <a class="nav-item nav-link" href="#">Dashboard*</a>
                     {% endif %}
-                    <a class="nav-item nav-link" href="{% url 'about' %}">About</a>
+                    <a class="nav-item nav-link" href="{% url 'about' %}">About*</a>
                 </div>
                 <!-- Navbar Right Side -->
                 <div class="navbar-nav">
@@ -41,12 +42,14 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown1" role="button"
                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Report
+                            Report*
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown1">
                             <a class="dropdown-item" href="{% url 'report-create' %}">Create A Report</a>
                             <a class="dropdown-item" href="{% url 'all-reports' %}">All Reports</a>
                             <a class="dropdown-item" href="{% url 'home' %}">Subscribed Reports</a>
+                            <a class="dropdown-item" href="#">Created Report*</a>
+                            <a class="dropdown-item" href="#">Collaborated Report*</a>
                         </div>
                     </li>
                     <li class="nav-item dropdown">
@@ -72,11 +75,12 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown4" role="button"
                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            User
+                            Personal*
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown4">
                             <a class="dropdown-item" href="{% url 'profile' %}">Profile</a>
-                            <a class="dropdown-item" href="#">Organization</a>
+                            <a class="dropdown-item" href="#">Career History*</a>
+                            <a class="dropdown-item" href="#">Point History*</a>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
                         </div>
@@ -92,30 +96,30 @@
 </header>
 
 <main role="main" class="container">
+    {% if user.is_authenticated %}
     <div class="row">
         <div class="col-md-8">
+    {% else %}
+    <div class="text-center" style="width:500px; margin:auto;">
+    {% endif %}
             {% if messages %}
             {% for message in messages %}
             {%if message.tags == 'error' %}
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                {{message}}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-            </button>
-            </div>
             {% else %}
             <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {% endif %}
                 {{message}}
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
             <span aria-hidden="true">&times;</span>
             </button>
             </div>
-            {% endif %}
             {% endfor %}
             {% endif %}
 
             {% block content %}{% endblock %}
         </div>
+    {% if user.is_authenticated %}
         <div class="col-md-4">
             <div class="content-section">
                 <h3>Our Sidebar</h3>
@@ -130,6 +134,7 @@
             </div>
         </div>
     </div>
+    {% endif %}
 </main>
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
