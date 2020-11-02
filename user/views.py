@@ -111,7 +111,7 @@ def UnitDetail(request, pk):
         for i in range(len(member_list)):
             if (member_list[i] != '0') and (job_list[i] != ''):
                 temp = User.objects.get(pk = int(member_list[i])).profile
-                if temp in valid_member:
+                if (temp in valid_member) or (temp.pk == head_pk):
                     messages.warning(request, f"There is duplicate of {temp.user.username}")
                 else:
                     valid_member.append(temp)

@@ -18,9 +18,9 @@ AUTH SECURITY
     <div class="media-body">
 <nav>
   <div class="nav nav-tabs nav-justified" id="nav-tab" role="tablist">
-    <a class="nav-item nav-link align-middle active" >Report Reported</a>
+    <a class="nav-item nav-link align-middle" >Report Reported</a>
     <a class="nav-item nav-link align-middle" >Report Taken</a>
-    <a class="nav-item nav-link align-middle" >Collaboration</a>
+    <a class="nav-item nav-link align-middle active" >Collaboration</a>
     <a class="nav-item nav-link align-middle" >Career History</a>
     <a class="nav-item nav-link align-middle" >Point History</a>
     <a class="nav-item nav-link align-middle" >Training History*</a>
@@ -29,58 +29,25 @@ AUTH SECURITY
 <div class="tab-content mt-4">
 {% for object in object_list %}
 <article class="media content-section">
-    <img class="rounded-circle article-img" src="{{ object.reporter.profile.image.url }}">
+    <img class="rounded-circle article-img" src="{{ object.collaborator.profile.image.url }}">
     <div class="media-body">
         <div class="article-metadata">
-            <a class="mr-2" href="{% url 'user-reports' object.reporter.username %}">
-                {{ object.reporter }}
+            <a class="mr-2" href="{% url 'user-reports' object.collaborator.username %}">
+                {{ object.collaborator }}
             </a>
             <small class="text-muted">
-                {{ object.date_reported|date:"F d, Y" }}
+                {{ object.date|date:"F d, Y" }}
             </small>
-                                {% if object.urgency and object.importance %}
-                        {% if object.urgency == 1 %}
-                            <small class="btn btn-sm btn-danger mb-1 ml-4 disabled">
-                                Urg : High
-                            </small>
-                        {% elif object.urgency == 2 %}
-                            <small class="btn btn-sm btn-warning mb-1 ml-4 disabled">
-                                Urg : Med
-                            </small>
-                        {% else %}
-                            <small class="btn btn-sm btn-success mb-1 ml-4 disabled">
-                                Urg : Low
-                            </small>
-                        {% endif %}
-                        {% if object.importance == 1 %}
-                            <small class="btn btn-sm btn-danger mb-1 ml-1 disabled">
-                                Imp : High
-                            </small>
-                        {% elif object.importance == 2 %}
-                            <small class="btn btn-sm btn-warning mb-1 ml-1 disabled">
-                                Imp : Med
-                            </small>
-                        {% else %}
-                            <small class="btn btn-sm btn-success mb-1 ml-1 disabled">
-                                Imp : Low
-                            </small>
-                        {% endif %}
-                    {% endif %}
         </div>
-                        <div class="row">
             <div class="col">
                 <h2>
-                    <a class="article-title" href="{% url 'report-detail' object.id %}">
-                        {{ object.title }}
+                    <a class="article-title" href="{% url 'report-detail' object.report.id %}">
+                        <div>{{ object.report.title }}</div>
+                        <div>⮡ {{ object.subject }}</div>
                     </a>
                 </h2>
             </div>
-                {% if object.taker %}
-                    <div class="col-2 mt-2 mr-3 ">
-                        <span class="btn btn-primary mb-1 disabled" >Taken</span>
-                    </div>
-                {% endif %}
-        </div>        {% if object.image %}
+        {% if object.image %}
         <div>
             <img class="img-fluid mx-auto d-block" style="height: 300px" src="{{ object.image.url }}">
         </div>

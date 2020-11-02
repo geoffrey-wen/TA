@@ -18,9 +18,9 @@
                 </div>
             {% if object.reporter == user %}
                 <div class="col-*-* mr-2">
-            <a class="btn btn-outline-info btn-sm mt-1 mb-1 ml-3 mr-2"
+            <a class="btn btn-outline-info btn-sm mb-1 ml-3 mr-2"
                href="{% url 'report-update' object.id %}">Update</a>
-            <a class="btn btn-outline-danger btn-sm mt-1 mb-1" href="{% url 'report-delete' object.id %}">Delete</a>
+            <a class="btn btn-outline-danger btn-sm mb-1" href="{% url 'report-delete' object.id %}">Delete</a>
                 </div>
                 {% endif %}
             </div>
@@ -131,7 +131,7 @@
             <div class="article-metadata">
                 <div class="row">
                     <div class="col">
-                        <a class="mr-2" href="{% url 'user-reports' object.reporter.username %}">
+                        <a class="mr-2" href="{% url 'user-reports' collab.collaborator.username %}">
                             {{ collab.collaborator }}
                         </a>
                         <small class="text-muted">
@@ -140,7 +140,7 @@
                     </div>
                     {% if collab.collaborator == user%}
                     <div class="col-*-* mr-2">
-                        <button class="btn btn-outline-danger btn-sm mt-1 mb-1" name="collab-del" type="submit" value="{{collab.pk}}">Delete</button>
+                        <button class="btn btn-outline-danger btn-sm mb-1" type="button" data-toggle="modal" data-target="#exampleModal" data-whatever="{{collab.pk}}" >Delete</button>
                     </div>
                     {% endif %}
                 </div>
@@ -176,6 +176,32 @@
             <button class="btn btn-outline-info" name="collab" type="submit" value=True>Collaborate</button>
         </div>
     </article>
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+          <div class="modal-body">
+            <h5 class="modal-title" style="text-align:center;" id="exampleModalLabel">Are You Sure?</h5>
+          </div>
+          <div class="modal-body" style="text-align:center;">
+            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-outline-danger ml-3" name="collab-del" >Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
 </form>
 
+{% endblock %}
+
+{% block jquery %}
+    <script type="text/javascript">
+        $('#exampleModal').on('show.bs.modal', function (event) {
+  var button = $(event.relatedTarget) // Button that triggered the modal
+  var recipient = button.data('whatever') // Extract info from data-* attributes
+  // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
+  // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+  var modal = $(this)
+  modal.find('.modal-body button').val(recipient)
+})
+    </script>
 {% endblock %}

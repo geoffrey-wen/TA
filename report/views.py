@@ -8,7 +8,7 @@ from .filters import TagFilter
 from django.db.models import Case, Value, When,IntegerField
 import datetime
 from django.contrib import messages
-from user.models import PointHistory
+from user.models import PointHistory, CareerHistory
 
 
 def About(request):
@@ -27,6 +27,48 @@ class UserReportListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         user = get_object_or_404(User, username=self.kwargs.get('username'))
         return Report.objects.filter(reporter=user).order_by('-date_reported__date','urgency','importance')
+"""
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = get_object_or_404(User, username=self.kwargs.get('username'))
+        context['careerhistories'] = CareerHistory.objects.filter(user = user).order_by('-date_started')
+        context['pointhistories'] = PointHistory.objects.filter(user = user).order_by('-date')
+        return context
+"""
+
+class UserTakenListView(LoginRequiredMixin, ListView):
+    model = Report
+    template_name = 'report/user_taken.html'
+    paginate_by = 5
+
+    def get_queryset(self):
+        user = get_object_or_404(User, username=self.kwargs.get('username'))
+        return Report.objects.filter(taker=user).order_by('-date_last_progress__date')
+
+class UserCollaborationListView(LoginRequiredMixin, ListView):
+    model = Collaboration
+    template_name = 'report/user_collab.html'
+    paginate_by = 5
+
+    def get_queryset(self):
+        user = get_object_or_404(User, username=self.kwargs.get('username'))
+        return Collaboration.objects.filter(collaborator=user).order_by('-date__date')
+
+class UserCareerListView(LoginRequiredMixin, ListView):
+    model = CareerHistory
+    template_name = 'report/user_career.html'
+
+    def get_queryset(self):
+        user = get_object_or_404(User, username=self.kwargs.get('username'))
+        return CareerHistory.objects.filter(user = user).order_by('-date_started')
+
+class UserPointListView(LoginRequiredMixin, ListView):
+    model = PointHistory
+    template_name = 'report/user_point.html'
+
+    def get_queryset(self):
+        user = get_object_or_404(User, username=self.kwargs.get('username'))
+        return Collaboration.objects.filter(user = user).order_by('-date ')
 
 class TagReportListView(LoginRequiredMixin, ListView):
     model = Report
