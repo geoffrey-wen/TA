@@ -33,7 +33,7 @@ class UserReportListView(LoginRequiredMixin, ListView):
         user = get_object_or_404(User, username=self.kwargs.get('username'))
         context['selected_user'] = user
         context['position'] = CareerHistory.objects.filter(user = user).filter(date_ended = None)
-        if user.profile.level() > self.request.user.profile.level():
+        if (not context['position']) or (user.profile.level() > self.request.user.profile.level()):
             temp = []
             temp.append(user.profile.point())
             temp.append(user.report_set.count())
@@ -58,7 +58,7 @@ class UserTakenListView(LoginRequiredMixin, ListView):
         user = get_object_or_404(User, username=self.kwargs.get('username'))
         context['selected_user'] = user
         context['position'] = CareerHistory.objects.filter(user = user).filter(date_ended = None)
-        if user.profile.level() > self.request.user.profile.level():
+        if (not context['position']) or (user.profile.level() > self.request.user.profile.level()):
             temp = []
             temp.append(user.profile.point())
             temp.append(user.report_set.count())
@@ -83,7 +83,7 @@ class UserCollaborationListView(LoginRequiredMixin, ListView):
         user = get_object_or_404(User, username=self.kwargs.get('username'))
         context['selected_user'] = user
         context['position'] = CareerHistory.objects.filter(user = user).filter(date_ended = None)
-        if user.profile.level() > self.request.user.profile.level():
+        if (not context['position']) or (user.profile.level() > self.request.user.profile.level()):
             temp = []
             temp.append(user.profile.point())
             temp.append(user.report_set.count())
@@ -141,7 +141,7 @@ class UserPointListView(LoginRequiredMixin, ListView):
         user = get_object_or_404(User, username=self.kwargs.get('username'))
         context['selected_user'] = user
         context['position'] = CareerHistory.objects.filter(user = user).filter(date_ended = None)
-        if user.profile.level() > self.request.user.profile.level():
+        if (not context['position']) or (user.profile.level() > self.request.user.profile.level()):
             temp = []
             temp.append(user.profile.point())
             temp.append(user.report_set.count())
