@@ -10,7 +10,7 @@ urlpatterns = [
 
     path('user/<str:username>', views.UserReportListView.as_view(), name='user-reports'),
     path('user/<str:username>/taken', views.UserTakenListView.as_view(), name='user-taken'),
-    path('user/<str:username>/collaboration', views.UserCollaborationListView.as_view(), name='user-collaboration'),
+    path('user/<str:username>/collaboration', views.UserCollaborationListView.as_view(), name='user-collab'),
     path('user/<str:username>/career', views.UserCareerListView.as_view(), name='user-career'),
     path('user/<str:username>/point', views.UserPointListView.as_view(), name='user-point'),
     # path('user/<str:username>/training', views.UserTrainingListView.as_view(), name='user-training'),

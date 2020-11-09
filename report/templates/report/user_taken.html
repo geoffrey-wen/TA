@@ -18,11 +18,11 @@ AUTH SECURITY
     <div class="media-body">
 <nav>
   <div class="nav nav-tabs nav-justified" id="nav-tab" role="tablist">
-    <a class="nav-item nav-link align-middle" >Report Reported</a>
-    <a class="nav-item nav-link align-middle active" >Report Taken</a>
-    <a class="nav-item nav-link align-middle" >Collaboration</a>
-    <a class="nav-item nav-link align-middle" >Career History</a>
-    <a class="nav-item nav-link align-middle" >Point History</a>
+    <a class="nav-item nav-link align-middle" href="{% url 'user-reports' selected_user.username %}">Report Reported</a>
+    <a class="nav-item nav-link align-middle active">Report Taken</a>
+    <a class="nav-item nav-link align-middle" href="{% url 'user-collab' selected_user.username %}">Collaboration</a>
+    <a class="nav-item nav-link align-middle" href="{% url 'user-career' selected_user.username %}">Career History</a>
+    <a class="nav-item nav-link align-middle" href="{% url 'user-point' selected_user.username %}">Point History</a>
     <a class="nav-item nav-link align-middle" >Training History*</a>
   </div>
 </nav>

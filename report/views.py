@@ -27,14 +27,11 @@ class UserReportListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         user = get_object_or_404(User, username=self.kwargs.get('username'))
         return Report.objects.filter(reporter=user).order_by('-date_reported__date','urgency','importance')
-"""
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        user = get_object_or_404(User, username=self.kwargs.get('username'))
-        context['careerhistories'] = CareerHistory.objects.filter(user = user).order_by('-date_started')
-        context['pointhistories'] = PointHistory.objects.filter(user = user).order_by('-date')
+        context['selected_user'] = get_object_or_404(User, username=self.kwargs.get('username'))
         return context
-"""
 
 class UserTakenListView(LoginRequiredMixin, ListView):
     model = Report
@@ -45,6 +42,11 @@ class UserTakenListView(LoginRequiredMixin, ListView):
         user = get_object_or_404(User, username=self.kwargs.get('username'))
         return Report.objects.filter(taker=user).order_by('-date_last_progress__date')
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['selected_user'] = get_object_or_404(User, username=self.kwargs.get('username'))
+        return context
+
 class UserCollaborationListView(LoginRequiredMixin, ListView):
     model = Collaboration
     template_name = 'report/user_collab.html'
@@ -54,6 +56,11 @@ class UserCollaborationListView(LoginRequiredMixin, ListView):
         user = get_object_or_404(User, username=self.kwargs.get('username'))
         return Collaboration.objects.filter(collaborator=user).order_by('-date__date')
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['selected_user'] = get_object_or_404(User, username=self.kwargs.get('username'))
+        return context
+
 class UserCareerListView(LoginRequiredMixin, ListView):
     model = CareerHistory
     template_name = 'report/user_career.html'
@@ -62,13 +69,23 @@ class UserCareerListView(LoginRequiredMixin, ListView):
         user = get_object_or_404(User, username=self.kwargs.get('username'))
         return CareerHistory.objects.filter(user = user).order_by('-date_started')
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['selected_user'] = get_object_or_404(User, username=self.kwargs.get('username'))
+        return context
+
 class UserPointListView(LoginRequiredMixin, ListView):
     model = PointHistory
     template_name = 'report/user_point.html'
 
     def get_queryset(self):
         user = get_object_or_404(User, username=self.kwargs.get('username'))
-        return Collaboration.objects.filter(user = user).order_by('-date ')
+        return PointHistory.objects.filter(user = user).order_by('-date')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['selected_user'] = get_object_or_404(User, username=self.kwargs.get('username'))
+        return context
 
 class TagReportListView(LoginRequiredMixin, ListView):
     model = Report
