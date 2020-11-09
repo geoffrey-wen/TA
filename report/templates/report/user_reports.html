@@ -1,19 +1,37 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1 class="mb-3">Post by {{ view.kwargs.username }} ({{ page_obj.paginator.count }})</h1>
-PROFILE
-Photo
-Nama
-Jabatan
-Unit
-DATA
-Point (?)
-Reported (?)
-On Progress (?)
-Finished (?)
-Contact-Email(?)
-AUTH SECURITY
+<div class="media">
+    <img class="rounded-circle account-img shadow-sm" src="{{ selected_user.profile.image.url}}">
+    <div class="media-body">
+        <h2 class="account-heading">{{ selected_user.username}}</h2>
+        {% if selected_user.profile.unit or selected_user.unit%}
+            <h5 class="text-secondary">{{ position.0.job }} of {{ position.0.unit }}</h5>
+        {% else %}
+            <h5 class="text-secondary"> No Position</h5>
+        {% endif %}
+        {% if not selected_user.profile.level or selected_user.profile.level >= user.profile.level %}
+            <h5 class="text-secondary">{{ selected_user.email }}</h5>
+        {% endif %}
+    </div>
+</div>
+{% if not selected_user.profile.level or selected_user.profile.level > user.profile.level %}
+    <table class="table" style="table-layout: fixed;">
+        <tr>
+            <td class="shadow-sm py-2 align-middle" style="border: none;"><span class="font-weight-bold text-dark">Point</span> <span class="float-right font-weight-bold text-dark">{{stats.0}}</span></td>
+            <td class="shadow-sm py-2 align-middle" style="border: none;"><span class="font-weight-bold text-dark">Reported Report</span> <span class="float-right font-weight-bold text-dark">{{stats.1}}</span></td>
+        </tr>
+        <tr>
+            <td class="shadow-sm py-2 align-middle" style="border: none;"><span class="font-weight-bold text-dark">Report Taken</span> <span class="float-right font-weight-bold text-dark">{{stats.2}}</span></td>
+            <td class="shadow-sm py-2 align-middle" style="border: none;"><span class="font-weight-bold text-dark">Report Taken On Progress</span> <span class="float-right font-weight-bold text-dark">{{stats.3}}</span></td>
+        </tr>
+        <tr>
+            <td class="shadow-sm py-2 align-middle" style="border: none;"><span class="font-weight-bold text-dark">Report Taken Not Approved</span> <span class="float-right font-weight-bold text-dark">{{stats.4}}</span></td>
+            <td class="shadow-sm py-2 align-middle" style="border: none;"><span class="font-weight-bold text-dark">Report Taken Finished</span> <span class="float-right font-weight-bold text-dark">{{stats.5}}</span></td>
+
+        </tr>
+    </table>
+{% endif %}
 <article class="media content-section">
     <div class="media-body">
 <nav>

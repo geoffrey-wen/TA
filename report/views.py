@@ -30,7 +30,18 @@ class UserReportListView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['selected_user'] = get_object_or_404(User, username=self.kwargs.get('username'))
+        user = get_object_or_404(User, username=self.kwargs.get('username'))
+        context['selected_user'] = user
+        context['position'] = CareerHistory.objects.filter(user = user).filter(date_ended = None)
+        if user.profile.level() > self.request.user.profile.level():
+            temp = []
+            temp.append(user.profile.point())
+            temp.append(user.report_set.count())
+            temp.append(user.reporttaken_set.count())
+            temp.append(user.reporttaken_set.filter(progress__lte = 3).count() + user.reporttaken_set.filter(progress__lte = 5).count())
+            temp.append(user.reporttaken_set.filter(progress = 4).count())
+            temp.append(user.reporttaken_set.filter(progress__gte = 6).count())
+            context['stats'] = temp
         return context
 
 class UserTakenListView(LoginRequiredMixin, ListView):
@@ -44,7 +55,18 @@ class UserTakenListView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['selected_user'] = get_object_or_404(User, username=self.kwargs.get('username'))
+        user = get_object_or_404(User, username=self.kwargs.get('username'))
+        context['selected_user'] = user
+        context['position'] = CareerHistory.objects.filter(user = user).filter(date_ended = None)
+        if user.profile.level() > self.request.user.profile.level():
+            temp = []
+            temp.append(user.profile.point())
+            temp.append(user.report_set.count())
+            temp.append(user.reporttaken_set.count())
+            temp.append(user.reporttaken_set.filter(progress__lte = 3).count() + user.reporttaken_set.filter(progress__lte = 5).count())
+            temp.append(user.reporttaken_set.filter(progress = 4).count())
+            temp.append(user.reporttaken_set.filter(progress__gte = 6).count())
+            context['stats'] = temp
         return context
 
 class UserCollaborationListView(LoginRequiredMixin, ListView):
@@ -58,25 +80,57 @@ class UserCollaborationListView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['selected_user'] = get_object_or_404(User, username=self.kwargs.get('username'))
+        user = get_object_or_404(User, username=self.kwargs.get('username'))
+        context['selected_user'] = user
+        context['position'] = CareerHistory.objects.filter(user = user).filter(date_ended = None)
+        if user.profile.level() > self.request.user.profile.level():
+            temp = []
+            temp.append(user.profile.point())
+            temp.append(user.report_set.count())
+            temp.append(user.reporttaken_set.count())
+            temp.append(user.reporttaken_set.filter(progress__lte = 3).count() + user.reporttaken_set.filter(progress__lte = 5).count())
+            temp.append(user.reporttaken_set.filter(progress = 4).count())
+            temp.append(user.reporttaken_set.filter(progress__gte = 6).count())
+            context['stats'] = temp
         return context
 
 class UserCareerListView(LoginRequiredMixin, ListView):
     model = CareerHistory
     template_name = 'report/user_career.html'
+    paginate_by = 20
 
     def get_queryset(self):
         user = get_object_or_404(User, username=self.kwargs.get('username'))
-        return CareerHistory.objects.filter(user = user).order_by('-date_started')
+        queryset = CareerHistory.objects.filter(user = user)
+        queryset = queryset.annotate(
+            incumbent = Case(
+                When(date_ended=None, then=Value(1)),
+                default = 0,
+                output_field=IntegerField()
+            )
+        ).order_by('-incumbent','-date_started')
+        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['selected_user'] = get_object_or_404(User, username=self.kwargs.get('username'))
+        user = get_object_or_404(User, username=self.kwargs.get('username'))
+        context['selected_user'] = user
+        context['position'] = CareerHistory.objects.filter(user = user).filter(date_ended = None)
+        if (not context['position']) or (user.profile.level() > self.request.user.profile.level()):
+            temp = []
+            temp.append(user.profile.point())
+            temp.append(user.report_set.count())
+            temp.append(user.reporttaken_set.count())
+            temp.append(user.reporttaken_set.filter(progress__lte = 3).count() + user.reporttaken_set.filter(progress = 5).count())
+            temp.append(user.reporttaken_set.filter(progress = 4).count())
+            temp.append(user.reporttaken_set.filter(progress__gte = 6).count())
+            context['stats'] = temp
         return context
 
 class UserPointListView(LoginRequiredMixin, ListView):
     model = PointHistory
     template_name = 'report/user_point.html'
+    paginate_by = 20
 
     def get_queryset(self):
         user = get_object_or_404(User, username=self.kwargs.get('username'))
@@ -84,7 +138,18 @@ class UserPointListView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['selected_user'] = get_object_or_404(User, username=self.kwargs.get('username'))
+        user = get_object_or_404(User, username=self.kwargs.get('username'))
+        context['selected_user'] = user
+        context['position'] = CareerHistory.objects.filter(user = user).filter(date_ended = None)
+        if user.profile.level() > self.request.user.profile.level():
+            temp = []
+            temp.append(user.profile.point())
+            temp.append(user.report_set.count())
+            temp.append(user.reporttaken_set.count())
+            temp.append(user.reporttaken_set.filter(progress__lte = 3).count() + user.reporttaken_set.filter(progress__lte = 5).count())
+            temp.append(user.reporttaken_set.filter(progress = 4).count())
+            temp.append(user.reporttaken_set.filter(progress__gte = 6).count())
+            context['stats'] = temp
         return context
 
 class TagReportListView(LoginRequiredMixin, ListView):
@@ -143,8 +208,9 @@ class SubscribedReportListView(LoginRequiredMixin, ListView):
         queryset = Report.objects.none()
         for i in range(tags.count()):
             queryset = queryset | Report.objects.filter(tag=tags[i])
-            #.union hanya works sdi terminal; why?
+            #.union hanya works di terminal; why?
         queryset = queryset.distinct()
+        #bikin attribute baru berdasarkan takernya
         queryset = queryset.annotate(
             taken_status = Case(
                 When(taker=None, then=Value(0)),

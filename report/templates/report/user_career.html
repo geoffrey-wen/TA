@@ -1,19 +1,37 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1 class="mb-3">Post by {{ view.kwargs.username }} ({{ object_list|length }})</h1>
-PROFILE
-Photo
-Nama
-Jabatan
-Unit
-DATA
-Point (?)
-Reported (?)
-On Progress (?)
-Finished (?)
-Contact-Email(?)
-AUTH SECURITY
+<div class="media">
+    <img class="rounded-circle account-img shadow-sm" src="{{ selected_user.profile.image.url}}">
+    <div class="media-body">
+        <h2 class="account-heading">{{ selected_user.username}}</h2>
+        {% if selected_user.profile.unit or selected_user.unit%}
+            <h5 class="text-secondary">{{ position.0.job }} of {{ position.0.unit }}</h5>
+        {% else %}
+            <h5 class="text-secondary"> No Position</h5>
+        {% endif %}
+        {% if not selected_user.profile.level or selected_user.profile.level >= user.profile.level %}
+            <h5 class="text-secondary">{{ selected_user.email }}</h5>
+        {% endif %}
+    </div>
+</div>
+{% if not selected_user.profile.level or selected_user.profile.level > user.profile.level %}
+    <table class="table" style="table-layout: fixed;">
+        <tr>
+            <td class="shadow-sm py-2 align-middle" style="border: none;"><span class="font-weight-bold text-dark">Point</span> <span class="float-right font-weight-bold text-dark">{{stats.0}}</span></td>
+            <td class="shadow-sm py-2 align-middle" style="border: none;"><span class="font-weight-bold text-dark">Reported Report</span> <span class="float-right font-weight-bold text-dark">{{stats.1}}</span></td>
+        </tr>
+        <tr>
+            <td class="shadow-sm py-2 align-middle" style="border: none;"><span class="font-weight-bold text-dark">Report Taken</span> <span class="float-right font-weight-bold text-dark">{{stats.2}}</span></td>
+            <td class="shadow-sm py-2 align-middle" style="border: none;"><span class="font-weight-bold text-dark">Report Taken On Progress</span> <span class="float-right font-weight-bold text-dark">{{stats.3}}</span></td>
+        </tr>
+        <tr>
+            <td class="shadow-sm py-2 align-middle" style="border: none;"><span class="font-weight-bold text-dark">Report Taken Not Approved</span> <span class="float-right font-weight-bold text-dark">{{stats.4}}</span></td>
+            <td class="shadow-sm py-2 align-middle" style="border: none;"><span class="font-weight-bold text-dark">Report Taken Finished</span> <span class="float-right font-weight-bold text-dark">{{stats.5}}</span></td>
+
+        </tr>
+    </table>
+{% endif %}
 <article class="media content-section">
     <div class="media-body">
 <nav>
@@ -27,9 +45,40 @@ AUTH SECURITY
   </div>
 </nav>
 <div class="tab-content mt-4">
-{% for object in object_list %}
-    <p>{{object}}</p>
-{% endfor %}
+    <div class="table-responsive">
+<table class="table table-sm table-hover">
+    <tr>
+        <th style="text-align:center">Reg-ID</th>
+        <th style="text-align:center">Date Started</th>
+        <th style="text-align:center">Date Ended</th>
+        <th style="text-align:center">Unit</th>
+        <th style="text-align:center">Job</th>
+    </tr>
+    {% for object in object_list %}
+    <tr>
+        <td class="align-middle"  style="text-align:center">
+            {{ object.id }}
+        </td>
+        <td class="align-middle"  style="text-align:center">
+            {{ object.date_started|date:"M d, Y" }}
+        </td>
+        <td class="align-middle"  style="text-align:center">
+            {% if object.incumbent %}
+                <button type="button" class="btn btn-sm btn-primary" disabled> Incumbent </button>
+            {% else %}
+                {{ object.date_ended|date:"M d, Y" }}
+            {% endif %}
+        </td>
+        <td class="align-middle"  style="text-align:center">
+            <a href="{% url 'unit-detail' object.unit.id %}" >{{ object.unit }}</a>
+        </td>
+        <td class="align-middle"  style="text-align:center">
+            {{ object.job }}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+    </div>
 {% if is_paginated %}
    <div class="d-flex justify-content-center">
 {% if page_obj.has_previous %}
