@@ -12,7 +12,7 @@ from user.models import PointHistory, CareerHistory
 
 
 def About(request):
-    return HttpResponse('LoremIpsum')
+    return render(request, 'report/about.html')
 
 class ReportListView(LoginRequiredMixin, ListView):
     model = Report
@@ -33,12 +33,12 @@ class UserReportListView(LoginRequiredMixin, ListView):
         user = get_object_or_404(User, username=self.kwargs.get('username'))
         context['selected_user'] = user
         context['position'] = CareerHistory.objects.filter(user = user).filter(date_ended = None)
-        if (not context['position']) or (user.profile.level() > self.request.user.profile.level()):
+        if (not context['position']) or (self.request.user == user ) or (user.profile.level() > self.request.user.profile.level()):
             temp = []
             temp.append(user.profile.point())
             temp.append(user.report_set.count())
             temp.append(user.reporttaken_set.count())
-            temp.append(user.reporttaken_set.filter(progress__lte = 3).count() + user.reporttaken_set.filter(progress__lte = 5).count())
+            temp.append(user.reporttaken_set.filter(progress__lte = 3).count() + user.reporttaken_set.filter(progress = 5).count())
             temp.append(user.reporttaken_set.filter(progress = 4).count())
             temp.append(user.reporttaken_set.filter(progress__gte = 6).count())
             context['stats'] = temp
@@ -58,12 +58,12 @@ class UserTakenListView(LoginRequiredMixin, ListView):
         user = get_object_or_404(User, username=self.kwargs.get('username'))
         context['selected_user'] = user
         context['position'] = CareerHistory.objects.filter(user = user).filter(date_ended = None)
-        if (not context['position']) or (user.profile.level() > self.request.user.profile.level()):
+        if (not context['position']) or (self.request.user == user ) or (user.profile.level() > self.request.user.profile.level()):
             temp = []
             temp.append(user.profile.point())
             temp.append(user.report_set.count())
             temp.append(user.reporttaken_set.count())
-            temp.append(user.reporttaken_set.filter(progress__lte = 3).count() + user.reporttaken_set.filter(progress__lte = 5).count())
+            temp.append(user.reporttaken_set.filter(progress__lte = 3).count() + user.reporttaken_set.filter(progress = 5).count())
             temp.append(user.reporttaken_set.filter(progress = 4).count())
             temp.append(user.reporttaken_set.filter(progress__gte = 6).count())
             context['stats'] = temp
@@ -83,12 +83,12 @@ class UserCollaborationListView(LoginRequiredMixin, ListView):
         user = get_object_or_404(User, username=self.kwargs.get('username'))
         context['selected_user'] = user
         context['position'] = CareerHistory.objects.filter(user = user).filter(date_ended = None)
-        if (not context['position']) or (user.profile.level() > self.request.user.profile.level()):
+        if (not context['position']) or (self.request.user == user ) or (user.profile.level() > self.request.user.profile.level()):
             temp = []
             temp.append(user.profile.point())
             temp.append(user.report_set.count())
             temp.append(user.reporttaken_set.count())
-            temp.append(user.reporttaken_set.filter(progress__lte = 3).count() + user.reporttaken_set.filter(progress__lte = 5).count())
+            temp.append(user.reporttaken_set.filter(progress__lte = 3).count() + user.reporttaken_set.filter(progress = 5).count())
             temp.append(user.reporttaken_set.filter(progress = 4).count())
             temp.append(user.reporttaken_set.filter(progress__gte = 6).count())
             context['stats'] = temp
@@ -116,7 +116,7 @@ class UserCareerListView(LoginRequiredMixin, ListView):
         user = get_object_or_404(User, username=self.kwargs.get('username'))
         context['selected_user'] = user
         context['position'] = CareerHistory.objects.filter(user = user).filter(date_ended = None)
-        if (not context['position']) or (user.profile.level() > self.request.user.profile.level()):
+        if (not context['position']) or (self.request.user == user ) or (user.profile.level() > self.request.user.profile.level()):
             temp = []
             temp.append(user.profile.point())
             temp.append(user.report_set.count())
@@ -141,12 +141,12 @@ class UserPointListView(LoginRequiredMixin, ListView):
         user = get_object_or_404(User, username=self.kwargs.get('username'))
         context['selected_user'] = user
         context['position'] = CareerHistory.objects.filter(user = user).filter(date_ended = None)
-        if (not context['position']) or (user.profile.level() > self.request.user.profile.level()):
+        if (not context['position']) or (self.request.user == user ) or (user.profile.level() > self.request.user.profile.level()):
             temp = []
             temp.append(user.profile.point())
             temp.append(user.report_set.count())
             temp.append(user.reporttaken_set.count())
-            temp.append(user.reporttaken_set.filter(progress__lte = 3).count() + user.reporttaken_set.filter(progress__lte = 5).count())
+            temp.append(user.reporttaken_set.filter(progress__lte = 3).count() + user.reporttaken_set.filter(progress = 5).count())
             temp.append(user.reporttaken_set.filter(progress = 4).count())
             temp.append(user.reporttaken_set.filter(progress__gte = 6).count())
             context['stats'] = temp

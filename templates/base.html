@@ -34,7 +34,7 @@
                     <a class="nav-item nav-link" href="{% url 'progress-taken' %}">Progress</a>
                     <a class="nav-item nav-link" href="#">Dashboard*</a>
                     {% endif %}
-                    <a class="nav-item nav-link" href="{% url 'about' %}">About*</a>
+                    <a class="nav-item nav-link" href="{% url 'about' %}">About</a>
                 </div>
                 <!-- Navbar Right Side -->
                 <div class="navbar-nav">
@@ -42,14 +42,12 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown1" role="button"
                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Report*
+                            Report
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown1">
                             <a class="dropdown-item" href="{% url 'report-create' %}">Create A Report</a>
                             <a class="dropdown-item" href="{% url 'all-reports' %}">All Reports</a>
                             <a class="dropdown-item" href="{% url 'home' %}">Subscribed Reports</a>
-                            <a class="dropdown-item" href="#">Created Report*</a>
-                            <a class="dropdown-item" href="#">Collaborated Report*</a>
                         </div>
                     </li>
                     <li class="nav-item dropdown">
@@ -80,7 +78,10 @@
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown4">
                             <a class="dropdown-item" href="{% url 'unit-create' %}">Create A Unit</a>
                             <a class="dropdown-item" href="{% url 'unit-list' %}">Unit Hierarchy</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="{% url 'user-list' %}">All User</a>
                             <a class="dropdown-item" href="{% url 'auth-detail' %}">Manage Authorization</a>
+                            <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="{% url 'point-create' %}">Create A Point Log</a>
                             <a class="dropdown-item" href="#">Recent Point Log*</a>
                         </div>
@@ -88,12 +89,11 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown5" role="button"
                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Personal*
+                            Personal
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown5">
                             <a class="dropdown-item" href="{% url 'profile' %}">Profile</a>
-                            <a class="dropdown-item" href="#">Career History*</a>
-                            <a class="dropdown-item" href="#">Point History*</a>
+                            <a class="dropdown-item" href="{% url 'user-reports' user.username%}">Record</a>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
                         </div>
@@ -135,15 +135,16 @@
     {% if user.is_authenticated %}
         <div class="col-md-4">
             <div class="content-section">
-                <h3>Our Sidebar</h3>
-                <p class='text-muted'>You can put any information here you'd like.
-                <ul class="list-group">
-                    <li class="list-group-item list-group-item-light">Latest Posts</li>
-                    <li class="list-group-item list-group-item-light">Announcements</li>
-                    <li class="list-group-item list-group-item-light">Calendars</li>
-                    <li class="list-group-item list-group-item-light">etc</li>
-                </ul>
-                </p>
+                <small class='text-muted'>(Put Announcement/Event/Temporary Informations Here!)</small>
+                <h3 class="mb-2 text-center"><strong>TOWNHALL MEETING</strong> (Aug 8 2020)</h3>
+                <img class="img-fluid mx-auto d-block mt-2" src="/image/side_bar/2d5ec92cca0e30fada8e33e119c434a5.jpg">
+                <p class="mt-2">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed sem mi, pellentesque eget diam non, gravida pretium leo. In pretium suscipit leo, eu hendrerit augue ullamcorper ac. Praesent ex nisi, viverra a est et, varius ultricies turpis. Ut vel nunc est.</p>
+            </div>
+            <div class="content-section">
+                <small class='text-muted'>(Put Announcement/Event/Temporary Informations Here!)</small>
+                <h3 class="mb-2 text-center"><strong>INTERNAL BADMINTON SPARRING</strong> (Aug 17 2020)</h3>
+                <img class="img-fluid mx-auto d-block mt-2" src="/image/side_bar/CLP-badminton-poster_905.png">
+                <p class="mt-2">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed sem mi, pellentesque eget diam non, gravida pretium leo. In pretium suscipit leo, eu hendrerit augue ullamcorper ac. Praesent ex nisi, viverra a est et, varius ultricies turpis. Ut vel nunc est.</p>
             </div>
         </div>
     </div>

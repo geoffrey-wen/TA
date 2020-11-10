@@ -8,6 +8,8 @@ from .models import Unit, Profile, CareerHistory, Auth, PointHistory
 from django.http import HttpResponse
 from django.contrib.auth.models import User
 import datetime
+from .filters import UserFilter
+
 import json
 # Create your views here.
 
@@ -262,3 +264,27 @@ class PointHistoryCreateView(LoginRequiredMixin, CreateView):
         form.instance.writer = self.request.user
         return super().form_valid(form)
 
+def UserList(request):
+    if not request.user.username:
+        return redirect('/login/?next=%s' % request.path)
+
+    users = User.objects.all()
+    user_count = users.count()
+    user_filter = UserFilter(request.GET, queryset=users)
+    users = user_filter.qs
+
+    keyworduname = str(user_filter.form).split('<input')[1].split('"')[5]
+    keywordunit = str(user_filter.form).split('<input')[2].split('"')[5]
+    keywordjob = str(user_filter.form).split('<input')[3].split('"')[5]
+    if not keywordunit == "id_unit":
+        qs = User.objects.filter(unit__name__icontains = keywordunit)
+        if not keyworduname == "id_username":
+            qs = qs.filter(username__icontains=keyworduname)
+        if not keywordjob == "id_job":
+            qs = qs.filter(careerhistory__job__icontains = keywordjob)
+        users = users|qs
+    users = users.distinct()
+    context = {'users':users,
+               'user_count':user_count,
+               'user_filter':user_filter}
+    return render(request, 'user/user_list.html', context)

@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="row">
+    <div class="col">
+        <div class="card card-body">
+            <form method="get">
+                {{user_filter.form|crispy}}
+                <button class="btn btn-outline-info" type="submit">
+                    Search
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+<br>
+<div class="row">
+    <div class="col-md">
+        <div class="card card-body table-responsive">
+            <table class="table table-sm table-hover">
+                <tr>
+                    <th style="text-align:center"></th>
+                    <th style="text-align:center">Username</th>
+                    <th style="text-align:center">Unit</th>
+                    <th style="text-align:center">Job</th>
+                </tr>
+                {% for user in users %}
+                <tr>
+                    <td class="align-middle"  style="text-align:center">
+                        <img class="rounded-circle shadow-sm" style="height: 30px; width: 30px;" src="{{ user.profile.image.url }}">
+                    </td>
+                    <td class="align-middle"  style="text-align:center">
+                        <a class="btn btn-outline-info btn-sm mt-1 mb-1" href="{% url 'user-reports' user.username %}">
+                            {{ user.username }}
+                        </a>
+                    </td>
+                    <td class="align-middle"  style="text-align:center">
+                        {% if user.profile.unit %}
+                            <a class="btn btn-outline-info btn-sm mt-1 mb-1" href="{% url 'unit-detail' user.profile.unit.pk %}">
+                                {{ user.profile.unit.name }}
+                            </a>
+                        {% elif user.unit %}
+                            <a class="btn btn-outline-info btn-sm mt-1 mb-1" href="{% url 'unit-detail' user.unit.pk %}">
+                                {{ user.unit.name }}
+                            </a>
+                        {% endif %}
+                    </td>
+                    <td class="align-middle" >
+                        {% if not user.careerhistory_set.all.last.date_ended %}
+                        {{ user.careerhistory_set.all.last.job }}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
