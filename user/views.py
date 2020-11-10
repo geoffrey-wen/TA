@@ -165,6 +165,19 @@ def UnitDetail(request, pk):
                 'loopless_unit' : loopless_unit.order_by('name')}
     return render(request, 'user/unit_detail.html', context)
 
+def UnitHierarchy(request):
+    if not request.user.username:
+        return redirect('/login/?next=%s' % request.path)
+
+    units = Unit.objects.all()
+    top_units = []
+    for unit in units:
+        if unit.level() == 1:
+            top_units.append(unit)
+
+    context = { 'top_units' : top_units}
+    return render(request, 'user/unit_list.html', context)
+
 def AuthDetail(request):
     if not request.user.username:
         return redirect('/login/?next=%s' % request.path)

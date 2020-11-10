@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="content-section">
+    <h2 class="mb-2">Hierarchy</h2>
+    {% for unit in top_units %}
+        <div>
+            <span class="ml-2 mr-2">.</span>
+            <span><a class="btn btn-outline-secondary btn-sm mt-1" href="{% url 'unit-detail' unit.pk %}">{{unit.name}}</a></span>
+        </div>
+        {% for subordinate in unit.subordinate_list%}
+        <div>
+            {% with ''|center:subordinate.level as range %}
+            {% for a in range %}
+                <span class="ml-2 mr-2">.</span>
+            {% endfor %}
+            {% endwith %}
+            <span><a class="btn btn-outline-secondary btn-sm mt-1" href="{% url 'unit-detail' subordinate.pk %}">{{subordinate.name}}</a></span>
+        </div>
+        {% endfor %}
+    {% endfor %}
+</div>
+{% endblock%}
