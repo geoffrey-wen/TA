@@ -8,7 +8,8 @@ from .models import Unit, Profile, CareerHistory, Auth, PointHistory
 from django.http import HttpResponse
 from django.contrib.auth.models import User
 import datetime
-from .filters import UserFilter
+from .filters import UserFilter, PointHistoryFilter
+from django.db.models import Sum
 
 import json
 # Create your views here.
@@ -269,7 +270,6 @@ def UserList(request):
         return redirect('/login/?next=%s' % request.path)
 
     users = User.objects.all()
-    user_count = users.count()
     user_filter = UserFilter(request.GET, queryset=users)
     users = user_filter.qs
 
@@ -285,6 +285,22 @@ def UserList(request):
         users = users|qs
     users = users.distinct()
     context = {'users':users,
-               'user_count':user_count,
                'user_filter':user_filter}
     return render(request, 'user/user_list.html', context)
+
+def PointHistoryList(request):
+    if not request.user.username:
+        return redirect('/login/?next=%s' % request.path)
+
+    point_logs = PointHistory.objects.all()
+    point_log_filter = PointHistoryFilter(request.GET, queryset=point_logs)
+    point_logs = point_log_filter.qs
+    point_logs = point_logs.distinct()
+    logs_sum = point_logs.aggregate(points=Sum('point'))['points']
+    logs_count = point_logs.count()
+
+    context = {'point_logs': point_logs.order_by('-date'),
+               'point_log_filter': point_log_filter,
+               'logs_sum' :logs_sum,
+               'logs_count' : logs_count}
+    return render(request, 'user/pointhistory_list.html', context)

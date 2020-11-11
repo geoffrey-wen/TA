@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="row">
+    <div class="col">
+        <div class="card card-body">
+            <form method="get">
+                {{point_log_filter.form|crispy}}
+                <button class="btn btn-outline-info" type="submit">
+                    Search
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+<br>
+<table class="table" style="table-layout: fixed;">
+    <tr>
+        <td class="shadow-sm py-2 align-middle" style="border: none;"><span class="font-weight-bold text-dark">Number of Log(s)</span> <span class="float-right font-weight-bold text-dark">{{logs_count}}</span></td>
+        <td class="shadow-sm py-2 align-middle" style="border: none;"><span class="font-weight-bold text-dark">Sum of Point(s)</span> <span class="float-right font-weight-bold text-dark">{{logs_sum}}</span></td>
+    </tr>
+</table>
+<div class="row">
+    <div class="col-md">
+        <div class="card card-body table-responsive">
+            <table class="table table-sm table-hover">
+                <tr>
+                    <th style="text-align:center">Date</th>
+                    <th style="text-align:center">Point</th>
+                    <th style="text-align:center">Receiver</th>
+                    <th style="text-align:center">Writer</th>
+                    <th style="text-align:center">Note</th>
+                </tr>
+                {% for log in point_logs %}
+                <tr>
+                    <td class="align-middle"  style="text-align:center">
+                        {{ log.date|date:"dMy" }}
+                        {{ log.date|date:"H:i" }}
+                    </td>
+                    <td class="align-middle"  style="text-align:center">
+                        {{ log.point }}
+                    </td>
+                    <td class="align-middle"  style="text-align:center">
+                        <a class="btn btn-outline-info btn-sm mt-1 mb-1" href="{% url 'user-reports' log.user.username %}">
+                            {{ log.user }}
+                        </a>
+                    </td>
+                    <td class="align-middle"  style="text-align:center">
+                        <a class="btn btn-outline-info btn-sm mt-1 mb-1" href="{% url 'user-reports' log.writer.username %}">
+                            {{ log.writer }}
+                        </a>
+                    </td>
+                    <td class="align-middle" >
+                        {{ log.note }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
