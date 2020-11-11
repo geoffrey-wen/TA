@@ -5,8 +5,10 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User, AnonymousUser
 from .filters import TagFilter
-from django.db.models import Case, Value, When,IntegerField
+from django.db.models import Case, Value, When,IntegerField, Count
+from django.db.models.functions import TruncYear, TruncQuarter, TruncMonth, TruncWeek, TruncDate
 import datetime
+from datetime import timedelta
 from django.contrib import messages
 from user.models import PointHistory, CareerHistory
 
@@ -395,3 +397,162 @@ def ProgressSubscribed(request):
     return render(request, 'report/progress_subscribed.html', context)
 
 # def ProgressList(request):
+
+def Dashboard(request):
+    if not request.user.username:
+        return redirect('/login/?next=%s' % request.path)
+    # ambil parameter get
+    # bisa ubah time interval
+    reports_reported = Report.objects.annotate(interval=TruncWeek('date_reported')
+                                    ).values('interval'
+                                    ).annotate(reported=Count('id')
+                                    ).values('interval', 'reported')
+
+    reports_taken = Report.objects.annotate(interval=TruncWeek('date_reported')
+                                 ).values('interval'
+                                 ).annotate(taken=Count('progress')
+                                 ).values('interval', 'taken')
+
+    reports_not_taken_yet = Report.objects.filter(progress=None
+                                         ).annotate(interval=TruncWeek('date_reported')
+                                         ).values('interval'
+                                         ).annotate(not_taken_yet=Count('id')
+                                         ).values('interval', 'not_taken_yet')
+
+    reports_in_checking = Report.objects.filter(progress__lte=3
+                                       ).annotate(interval=TruncWeek('date_reported')
+                                       ).values('interval'
+                                       ).annotate(in_checking=Count('id')
+                                       ).values('interval', 'in_checking')
+
+    reports_not_approved = Report.objects.filter(progress=4
+                                        ).annotate(interval=TruncWeek('date_reported')
+                                        ).values('interval'
+                                        ).annotate(not_approved=Count('id')
+                                        ).values('interval', 'not_approved')
+
+    reports_on_progress = Report.objects.filter(progress=5
+                                       ).annotate(interval=TruncWeek('date_reported')
+                                       ).values('interval'
+                                       ).annotate(on_progress=Count('id')
+                                       ).values('interval', 'on_progress')
+
+    reports_finished = Report.objects.filter(progress__gte=6
+                                    ).annotate(interval=TruncWeek('date_reported')
+                                    ).values('interval'
+                                    ).annotate(finished=Count('id')
+                                    ).values('interval', 'finished')
+
+    intervals = []
+    for report in reports_reported:
+        intervals.append(report['interval'])
+    for report in reports_taken:
+        intervals.append(report['interval'])
+
+    labels = [min(intervals)]
+    temp = min(intervals)
+    while temp < max(intervals):
+        temp = temp + timedelta(days=7)
+        labels.append(temp)
+
+    data = {'reported' : [],
+            'taken' : [],
+            'not_taken_yet' : [],
+            'in_checking' : [],
+            'not_approved' : [],
+            'on_progress' : [],
+            'finished' : []}
+
+    for label in labels:
+        temp = 0
+        for report in reports_reported:
+            if label == report['interval']:
+                temp = report['reported']
+        if temp:
+            data['reported'].append(temp)
+        else:
+            data['reported'].append(0)
+
+        temp = 0
+        for report in reports_taken:
+            if label == report['interval']:
+                temp = report['taken']
+        if report['interval'] in labels:
+            data['taken'].append(temp)
+        else:
+            data['taken'].append(0)
+
+        temp = 0
+        for report in reports_not_taken_yet:
+            if label == report['interval']:
+                temp = report['not_taken_yet']
+        if report['interval'] in labels:
+            data['not_taken_yet'].append(temp)
+        else:
+            data['not_taken_yet'].append(0)
+
+        temp = 0
+        for report in reports_in_checking:
+            if label == report['interval']:
+                temp = report['in_checking']
+        if report['interval'] in labels:
+            data['in_checking'].append(temp)
+        else:
+            data['in_checking'].append(0)
+
+        temp = 0
+        for report in reports_not_approved:
+            if label == report['interval']:
+                temp = report['not_approved']
+        if report['interval'] in labels:
+            data['not_approved'].append(temp)
+        else:
+            data['not_approved'].append(0)
+
+        temp = 0
+        for report in reports_on_progress:
+            if label == report['interval']:
+                temp = report['on_progress']
+        if report['interval'] in labels:
+            data['on_progress'].append(temp)
+        else:
+            data['on_progress'].append(0)
+
+        temp = 0
+        for report in reports_finished:
+            if label == report['interval']:
+                temp = report['finished']
+        if report['interval'] in labels:
+            data['finished'].append(temp)
+        else:
+            data['finished'].append(0)
+
+    # print([label.strftime("%d %b %y") for label in labels])
+    context = {'data' : data,
+               'labels' : labels}
+    return render(request, 'report/dashboard.html', context)
+
+
+    reports_on_going1 = Report.objects.filter(progress_lte=3
+                                     ).annotate(month=TruncMonth('date_reported')
+                                     ).values('month'
+                                     ).annotate(c=Count('id')
+                                     ).values('date_reported__month', 'date_reported__year', 'c')
+    #
+    # reports_on_going2 = Report.objects.filter(progress=5
+    #                                  ).annotate(month=TruncMonth('date_reported')
+    #                                  ).values('month'
+    #                                  ).annotate(c=Count('id')
+    #                                  ).values('date_reported__month', 'date_reported__year', 'c')
+    #
+    # reports_not_approved = Report.objects.filter(progress=4
+    #                                     ).annotate(month=TruncMonth('date_reported')
+    #                                     ).values('month'
+    #                                     ).annotate(c=Count('id')
+    #                                     ).values('date_reported__month', 'date_reported__year', 'c')
+    #
+    # reports_finished = Report.objects.filter(progress_gte=6
+    #                                 ).annotate(month=TruncMonth('date_reported')
+    #                                 ).values('month'
+    #                                 ).annotate(c=Count('id')
+    #                                 ).values('date_reported__month', 'date_reported__year', 'c')

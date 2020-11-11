@@ -32,7 +32,7 @@
                     {% if user.is_authenticated %}
                     <a class="nav-item nav-link" href="{% url 'home' %}">Subscribed</a>
                     <a class="nav-item nav-link" href="{% url 'progress-taken' %}">Progress</a>
-                    <a class="nav-item nav-link" href="#">Dashboard*</a>
+                    <a class="nav-item nav-link" href="{% url 'dashboard' %}">Dashboard</a>
                     {% endif %}
                     <a class="nav-item nav-link" href="{% url 'about' %}">About</a>
                 </div>
@@ -146,9 +146,6 @@
                 <img class="img-fluid mx-auto d-block mt-2" src="/image/side_bar/CLP-badminton-poster_905.png">
                 <p class="mt-2">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed sem mi, pellentesque eget diam non, gravida pretium leo. In pretium suscipit leo, eu hendrerit augue ullamcorper ac. Praesent ex nisi, viverra a est et, varius ultricies turpis. Ut vel nunc est.</p>
             </div>
-            <div class="content-section">
-                <canvas class="my-4 chartjs-render-monitor" id="myChart" width="85" height="35" style="display: block; width: 85px; height: 35px;"></canvas>
-            </div>
         </div>
     </div>
     {% endif %}
@@ -166,35 +163,6 @@
         crossorigin="anonymous"></script>
 
 {% block jquery %}{% endblock %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
-<script>
-      var ctx = document.getElementById("myChart");
-      var myChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-          datasets: [{
-            data: [15339, 21345, 18483, 24003, 23489, 24092, 12034],
-            lineTension: 0,
-            backgroundColor: 'transparent',
-            borderColor: '#007bff',
-            borderWidth: 4,
-            pointBackgroundColor: '#007bff'
-          }]
-        },
-        options: {
-          scales: {
-            yAxes: [{
-              ticks: {
-                beginAtZero: false
-              }
-            }]
-          },
-          legend: {
-            display: false,
-          }
-        }
-      });
-    </script>
+
 </body>
 </html>

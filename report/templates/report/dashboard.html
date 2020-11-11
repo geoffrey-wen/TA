@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="content-section">
+<canvas id="dashboardChart" style="display: block; width: 372px; height: 186px;" width="372" height="186" class="chartjs-render-monitor"></canvas>
+</div>
+{% endblock%}
+{% block jquery%}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+<script>
+      var ctx = document.getElementById("dashboardChart").getContext('2d');
+      var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: [{% for label in labels %}'{{label|date:"d M y"}}',{% endfor %}],
+          datasets: [{
+            label: 'Reported',
+            data: [{% for datum in data.reported %}'{{datum}}',{% endfor %}],
+            lineTension: 0,
+            backgroundColor: '#71bdff',
+            borderColor: '#007bff',
+            borderWidth: 4,
+            pointBackgroundColor: '#007bff',
+            stack: 'stack0',
+          },{
+            label: 'In Checking',
+            data: [{% for datum in data.in_checking %}'{{datum}}',{% endfor %}],
+            lineTension: 0,
+            backgroundColor: '#ffbd71',
+            borderColor: '#ff7b00',
+            borderWidth: 4,
+            pointBackgroundColor: '#007bff',
+            stack: 'stack1',
+          },{
+            label: 'On Progress',
+            data: [{% for datum in data.on_progress %}'{{datum}}',{% endfor %}],
+            lineTension: 0,
+            backgroundColor: '#ff71bd',
+            borderColor: '#ff007b',
+            borderWidth: 4,
+            pointBackgroundColor: '#007bff',
+            stack: 'stack1',
+          },{
+            label: 'Finished',
+            data: [{% for datum in data.finished %}'{{datum}}',{% endfor %}],
+            lineTension: 0,
+            backgroundColor: '#71ffbd',
+            borderColor: '#00ff7b',
+            borderWidth: 4,
+            pointBackgroundColor: '#007bff',
+            stack: 'stack1',
+          },{
+            label: 'Not Approved',
+            data: [{% for datum in data.not_approved %}'{{datum}}',{% endfor %}],
+            lineTension: 0,
+            backgroundColor: '#bd71ff',
+            borderColor: '#7b00ff',
+            borderWidth: 4,
+            pointBackgroundColor: '#007bff',
+            stack: 'stack1',
+          },{
+            label: 'Not Taken Yet',
+            data: [{% for datum in data.not_taken_yet %}'{{datum}}',{% endfor %}],
+            lineTension: 0,
+            backgroundColor: '#dddddd',
+            borderColor: '#bfbfbf',
+            borderWidth: 4,
+            pointBackgroundColor: '#007bff',
+            stack: 'stack1',
+          }]
+        },
+        options: {
+          title:{
+            display: true,
+            text: 'Reports & Actions (per Month)'
+          },
+          legend:{
+            enabled : true,
+            display : true,
+            position: 'top'
+          },
+            tooltips:{
+            mode: 'index',
+            intersect: false,
+          },
+          responsive: true,
+          scales: {
+            yAxes: [{
+              ticks: {
+                beginAtZero: false
+              }
+            }]
+          },
+        }
+      });
+ </script>
+{% endblock %}

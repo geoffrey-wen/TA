@@ -25,6 +25,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', reportview.SubscribedReportListView.as_view(), name='home'),
     path('about/', reportview.About, name='about'),
+    path('dashboard/', reportview.Dashboard, name='dashboard'),
 
     path('login/', authview.LoginView.as_view(template_name='user/login.html'), name='login'),
     path('logout/', authview.LogoutView.as_view(template_name='user/logout.html'), name='logout'),
