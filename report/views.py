@@ -408,7 +408,8 @@ def Dashboard(request):
                                     ).annotate(reported=Count('id')
                                     ).values('interval', 'reported')
 
-    reports_taken = Report.objects.annotate(interval=TruncWeek('date_reported')
+    reports_taken = Report.objects.exclude(date_last_progress = None
+                                 ).annotate(interval=TruncWeek('date_last_progress')
                                  ).values('interval'
                                  ).annotate(taken=Count('progress')
                                  ).values('interval', 'taken')

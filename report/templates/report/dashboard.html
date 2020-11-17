@@ -2,14 +2,16 @@
 
 {% block content %}
 <div class="content-section">
-<canvas id="dashboardChart" style="display: block; width: 372px; height: 186px;" width="372" height="186" class="chartjs-render-monitor"></canvas>
+ <canvas id="Chart1" style="display: block; width: 372px; height: 186px;" width="372" height="186" class="chartjs-render-monitor"></canvas>
+ <br>
+ <canvas id="Chart2" style="display: block; width: 372px; height: 186px;" width="372" height="186" class="chartjs-render-monitor"></canvas>
 </div>
 {% endblock%}
 {% block jquery%}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
 <script>
-      var ctx = document.getElementById("dashboardChart").getContext('2d');
-      var myChart = new Chart(ctx, {
+      var ctx1 = document.getElementById("Chart1").getContext('2d');
+      var Chart1 = new Chart(ctx1, {
         type: 'bar',
         data: {
           labels: [{% for label in labels %}'{{label|date:"d M y"}}',{% endfor %}],
@@ -72,7 +74,49 @@
         options: {
           title:{
             display: true,
-            text: 'Reports & Actions (per Month)'
+            text: 'Reports & Actions (by Reported Date per Week)'
+          },
+          legend:{
+            enabled : true,
+            display : true,
+            position: 'top'
+          },
+            tooltips:{
+            mode: 'index',
+            intersect: false,
+          },
+          responsive: true,
+          scales: {
+            yAxes: [{
+              ticks: {
+                beginAtZero: false
+              }
+            }]
+          },
+        }
+      });
+ </script>
+<script>
+      var ctx2 = document.getElementById("Chart2").getContext('2d');
+      var Chart2 = new Chart(ctx2, {
+        type: 'bar',
+        data: {
+          labels: [{% for label in labels %}'{{label|date:"d M y"}}',{% endfor %}],
+          datasets: [{
+            label: 'Taken',
+            data: [{% for datum in data.taken %}'{{datum}}',{% endfor %}],
+            lineTension: 0,
+            backgroundColor: '#71bdff',
+            borderColor: '#007bff',
+            borderWidth: 4,
+            pointBackgroundColor: '#007bff',
+            stack: 'stack0',
+          }]
+        },
+        options: {
+          title:{
+            display: true,
+            text: 'Reports Taken & Actions (by Last Progress per Week)'
           },
           legend:{
             enabled : true,
