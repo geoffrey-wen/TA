@@ -1,18 +1,16 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from .form import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
-from django.contrib.auth.decorators import login_required
 from django.views.generic import CreateView
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from .models import Unit, Profile, CareerHistory, Auth, PointHistory
 from django.http import HttpResponse
 from django.contrib.auth.models import User
 import datetime
 from .filters import UserFilter, PointHistoryFilter
 from django.db.models import Sum
+from report.views import auth_test
 
-import json
-# Create your views here.
 
 def register(request):
     if request.method == 'POST':
@@ -22,13 +20,15 @@ def register(request):
             username = form.cleaned_data.get('username')
             messages.success(request, f'Account created for {username}!')
             return redirect('login')
-    else :
+    else:
         form = UserRegisterForm()
     return render(request, 'user/register.html', {'form': form})
-#register.html belum dibikin, cari di bootstrap
 
-@login_required
+
 def profile(request):
+    if not request.user.username:
+        return redirect('/login/?next=%s' % request.path)
+
     if request.method == 'POST':
         u_form = UserUpdateForm(request.POST, instance=request.user)
         p_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
@@ -42,22 +42,33 @@ def profile(request):
         p_form = ProfileUpdateForm(instance=request.user.profile)
 
     context = {
-        'u_form' : u_form,
-        'p_form' : p_form,
+        'u_form': u_form,
+        'p_form': p_form,
     }
 
     return render(request, 'user/profile.html', context)
 
-class UnitCreateView(LoginRequiredMixin, CreateView):
+
+class UnitCreateView(LoginRequiredMixin,  UserPassesTestMixin, CreateView):
     model = Unit
     fields = ['name', 'superior']
 
     def form_valid(self, form):
         return super().form_valid(form)
 
+    def test_func(self):
+        return auth_test(self.request.user, 6)
+
+    def handle_no_permission(self):
+        return redirect('home')
+
+
 def UnitDetail(request, pk):
     if not request.user.username:
         return redirect('/login/?next=%s' % request.path)
+
+    if not auth_test(request.user, 6):
+        return redirect('home')
 
     unit = get_object_or_404(Unit, pk=pk)
     members = Profile.objects.filter(unit=unit)
@@ -125,7 +136,6 @@ def UnitDetail(request, pk):
                 if member_list[i] != '0' and job_list[i] == '':
                     messages.warning(request, f"There is no job for {User.objects.get(pk = int(member_list[i])).username}")
 
-
         for member in members:
             if not member in valid_member:
                 member.unit = None
@@ -168,9 +178,13 @@ def UnitDetail(request, pk):
                 'loopless_unit' : loopless_unit.order_by('name')}
     return render(request, 'user/unit_detail.html', context)
 
+
 def UnitHierarchy(request):
     if not request.user.username:
         return redirect('/login/?next=%s' % request.path)
+
+    if not auth_test(request.user, 6):
+        return redirect('home')
 
     units = Unit.objects.all()
     top_units = []
@@ -181,10 +195,14 @@ def UnitHierarchy(request):
     context = { 'top_units' : top_units}
     return render(request, 'user/unit_list.html', context)
 
+
 def AuthDetail(request):
     if not request.user.username:
         return redirect('/login/?next=%s' % request.path)
-    #list(Auth.Feature)[index].value/label/name
+
+    if not auth_test(request.user, 7):
+        return redirect('home')
+
     auth_list = []
     for feature in list(Auth.Feature):
         temp = [feature]
@@ -257,7 +275,8 @@ def AuthDetail(request):
                'levels' : levels}
     return render(request, 'user/auth_detail.html', context)
 
-class PointHistoryCreateView(LoginRequiredMixin, CreateView):
+
+class PointHistoryCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = PointHistory
     fields = ['user', 'point', 'note']
 
@@ -265,9 +284,19 @@ class PointHistoryCreateView(LoginRequiredMixin, CreateView):
         form.instance.writer = self.request.user
         return super().form_valid(form)
 
+    def test_func(self):
+        return auth_test(self.request.user, 8)
+
+    def handle_no_permission(self):
+        return redirect('home')
+
+
 def UserList(request):
     if not request.user.username:
         return redirect('/login/?next=%s' % request.path)
+
+    if not auth_test(request.user, 6):
+        return redirect('home')
 
     users = User.objects.all()
     user_filter = UserFilter(request.GET, queryset=users)
@@ -288,9 +317,13 @@ def UserList(request):
                'user_filter':user_filter}
     return render(request, 'user/user_list.html', context)
 
+
 def PointHistoryList(request):
     if not request.user.username:
         return redirect('/login/?next=%s' % request.path)
+
+    if not auth_test(request.user, 8):
+        return redirect('home')
 
     point_logs = PointHistory.objects.all()
     point_log_filter = PointHistoryFilter(request.GET, queryset=point_logs)
@@ -302,5 +335,6 @@ def PointHistoryList(request):
     context = {'point_logs': point_logs.order_by('-date'),
                'point_log_filter': point_log_filter,
                'logs_sum' :logs_sum,
-               'logs_count' : logs_count}
+               'logs_count' : logs_count,
+               'filter_data' : request.GET}
     return render(request, 'user/pointhistory_list.html', context)

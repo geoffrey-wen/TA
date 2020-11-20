@@ -14,7 +14,12 @@
         </div>
     </div>
     {% for auth in auth_list %}
-    <h3 class="mb-1">{{ auth.0.label }}</h3>
+        <h3 class="mb-1 mt-4">{{ auth.0.label }}</h3>
+            {% if not auth.1 and not auth.2 and not auth.3 %}
+            <div>
+                <small class="text-danger mb-1">* Free to be accessed by anyone. Please add at least an auth to limit the access</small>
+            </div>
+            {% endif %}
     <div class="row">
         <div class="col">
             <h5 class="mb-1 ml-3">User</h5>

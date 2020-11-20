@@ -1,27 +1,66 @@
-from django.http import HttpResponse
-from django.shortcuts import render, get_object_or_404, redirect, reverse
-from .models import Report, Tag, Collaboration, Images
+from django.shortcuts import render, get_object_or_404, redirect, reverse, HttpResponseRedirect
+from .models import Report, Tag, Collaboration
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.contrib.auth.models import User, AnonymousUser
+from django.contrib.auth.models import User
 from .filters import TagFilter
 from django.db.models import Case, Value, When,IntegerField, Count
-from django.db.models.functions import TruncYear, TruncQuarter, TruncMonth, TruncWeek, TruncDate
+from django.db.models.functions import TruncWeek
 import datetime
 from datetime import timedelta
 from django.contrib import messages
-from user.models import PointHistory, CareerHistory
+from user.models import PointHistory, CareerHistory, Auth
+
+
+def auth_test(user, featurenum):
+    if user.is_superuser:
+        return True
+
+    qs = Auth.objects.filter(feature = featurenum)
+    if qs:
+        qsuser = qs.exclude(auth_user = None)
+        qsunit = qs.exclude(auth_unit = None)
+        qslevel = qs.exclude(auth_level = None)
+
+        auth_user = user in [auth.auth_user for auth in qsuser]
+
+        if user.profile.unit:
+            unit = user.profile.unit
+        else:
+            try:
+                unit = user.unit
+            except:
+                unit = None
+        auth_unit = unit in [auth.auth_unit for auth in qsunit]
+
+        try:
+            level = user.profile.level()
+        except:
+            level = None
+        auth_level = level in [auth.auth_level for auth in qslevel]
+
+        return auth_user or auth_unit or auth_level
+    else:
+        return True
 
 
 def About(request):
     return render(request, 'report/about.html')
 
-class ReportListView(LoginRequiredMixin, ListView):
+
+class ReportListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = Report
     ordering = ['-date_reported__date','urgency','importance']
     paginate_by = 5
 
-class UserReportListView(LoginRequiredMixin, ListView):
+    def test_func(self):
+        return auth_test(self.request.user, 2)
+
+    def handle_no_permission(self):
+        return redirect('home')
+
+
+class UserReportListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = Report
     template_name = 'report/user_reports.html'
     paginate_by = 5
@@ -46,7 +85,17 @@ class UserReportListView(LoginRequiredMixin, ListView):
             context['stats'] = temp
         return context
 
-class UserTakenListView(LoginRequiredMixin, ListView):
+    def test_func(self):
+        user = get_object_or_404(User, username=self.kwargs.get('username'))
+        if user == self.request.user:
+            return True
+        return auth_test(self.request.user, 5) or auth_test(self.request.user, 2)
+
+    def handle_no_permission(self):
+        return redirect('home')
+
+
+class UserTakenListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = Report
     template_name = 'report/user_taken.html'
     paginate_by = 5
@@ -71,7 +120,17 @@ class UserTakenListView(LoginRequiredMixin, ListView):
             context['stats'] = temp
         return context
 
-class UserCollaborationListView(LoginRequiredMixin, ListView):
+    def test_func(self):
+        user = get_object_or_404(User, username=self.kwargs.get('username'))
+        if user == self.request.user:
+            return True
+        return auth_test(self.request.user, 5) or auth_test(self.request.user, 4)
+
+    def handle_no_permission(self):
+        return redirect('home')
+
+
+class UserCollaborationListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = Collaboration
     template_name = 'report/user_collab.html'
     paginate_by = 5
@@ -96,7 +155,17 @@ class UserCollaborationListView(LoginRequiredMixin, ListView):
             context['stats'] = temp
         return context
 
-class UserCareerListView(LoginRequiredMixin, ListView):
+    def test_func(self):
+        user = get_object_or_404(User, username=self.kwargs.get('username'))
+        if user == self.request.user:
+            return True
+        return auth_test(self.request.user, 5) or auth_test(self.request.user, 2)
+
+    def handle_no_permission(self):
+        return redirect('home')
+
+
+class UserCareerListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = CareerHistory
     template_name = 'report/user_career.html'
     paginate_by = 20
@@ -129,7 +198,17 @@ class UserCareerListView(LoginRequiredMixin, ListView):
             context['stats'] = temp
         return context
 
-class UserPointListView(LoginRequiredMixin, ListView):
+    def test_func(self):
+        user = get_object_or_404(User, username=self.kwargs.get('username'))
+        if user == self.request.user:
+            return True
+        return auth_test(self.request.user, 5) or auth_test(self.request.user, 6)
+
+    def handle_no_permission(self):
+        return redirect('home')
+
+
+class UserPointListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = PointHistory
     template_name = 'report/user_point.html'
     paginate_by = 20
@@ -154,7 +233,17 @@ class UserPointListView(LoginRequiredMixin, ListView):
             context['stats'] = temp
         return context
 
-class TagReportListView(LoginRequiredMixin, ListView):
+    def test_func(self):
+        user = get_object_or_404(User, username=self.kwargs.get('username'))
+        if user == self.request.user:
+            return True
+        return auth_test(self.request.user, 5) or auth_test(self.request.user, 8)
+
+    def handle_no_permission(self):
+        return redirect('home')
+
+
+class TagReportListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = Report
     template_name = 'report/tag_reports.html'
     paginate_by = 5
@@ -182,25 +271,14 @@ class TagReportListView(LoginRequiredMixin, ListView):
                 profile.tag.add(tag)
         return redirect('tag-reports', tagname = tag.name)
 
-    """
-    def post(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        tag = get_object_or_404(Tag, name=self.kwargs.get('tagname'))
-        context['description'] = tag.description
-        context['creator'] = tag.creator
-        is_subscribed = self.request.user.profile in tag.subscriber_set.all()
-        if "subscribeButton" in request.Post :
-            if is_subscribed:
-                remove user-tag relation
-            else:
-                add user-tag relation
-            save change
-        context['is_subscribed'] = self.request.user.profile in tag.subscriber_set.all()
-        return return redirect('tag-reports')
-    """
+    def test_func(self):
+        return auth_test(self.request.user, 3) or auth_test(self.request.user, 2)
+
+    def handle_no_permission(self):
+        return redirect('home')
 
 
-class SubscribedReportListView(LoginRequiredMixin, ListView):
+class SubscribedReportListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = Report
     template_name = 'report/subscribed_report.html'
     paginate_by = 5
@@ -222,26 +300,14 @@ class SubscribedReportListView(LoginRequiredMixin, ListView):
         ).order_by('taken_status','-date_reported__date','urgency','importance')
         return queryset
 
-#before change tag-report field to report model
-"""
-class TagReportListView(ListView):
-    model = Report
-    template_name = 'report/tag_reports.html'
-    paginate_by = 5
+    def test_func(self):
+        return auth_test(self.request.user, 2)
 
-    def get_queryset(self):
-        tag = get_object_or_404(Tag, name=self.kwargs.get('tagname'))
-        return tag.report.all().order_by('-date_reported')
+    def handle_no_permission(self):
+        return HttpResponseRedirect(reverse('user-reports', kwargs={'username': self.request.user.username}))
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        tag = get_object_or_404(Tag, name=self.kwargs.get('ragname'))
-        context['description'] = tag.description
-        context['creator'] = tag.creator
-        return context
-"""
 
-class ReportDetailView(LoginRequiredMixin, DetailView):
+class ReportDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = Report
 
     def get_context_data(self, **kwargs):
@@ -307,14 +373,30 @@ class ReportDetailView(LoginRequiredMixin, DetailView):
             report.save()
         return redirect('report-detail', pk = report.pk)
 
+    def test_func(self):
+        report = get_object_or_404(Report, pk=self.kwargs.get('pk'))
+        if report.reporter == self.request.user:
+            return True
+        return auth_test(self.request.user, 2)
 
-class ReportCreateView(LoginRequiredMixin, CreateView):
+    def handle_no_permission(self):
+        return redirect('home')
+
+
+class ReportCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Report
     fields = ['title', 'content', 'image', 'tag', 'urgency', 'importance']
 
     def form_valid(self, form):
         form.instance.reporter = self.request.user
         return super().form_valid(form)
+
+    def test_func(self):
+        return auth_test(self.request.user, 1)
+
+    def handle_no_permission(self):
+        return redirect('home')
+
 
 class ReportUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Report
@@ -330,6 +412,10 @@ class ReportUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
             return True
         return False
 
+    def handle_no_permission(self):
+        return redirect('home')
+
+
 class ReportDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Report
     success_url = '/'
@@ -340,7 +426,11 @@ class ReportDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
             return True
         return False
 
-class TagCreateView(LoginRequiredMixin, CreateView):
+    def handle_no_permission(self):
+        return redirect('home')
+
+
+class TagCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Tag
     fields = ['name','description']
 
@@ -348,13 +438,24 @@ class TagCreateView(LoginRequiredMixin, CreateView):
         form.instance.creator = self.request.user
         return super().form_valid(form)
 
+    def test_func(self):
+        return auth_test(self.request.user, 3)
+
+    def handle_no_permission(self):
+        return redirect('home')
+
+
 def TagList(request):
     if not request.user.username:
         return redirect('/login/?next=%s' % request.path)
 
+    if not (auth_test(request.user, 3) or auth_test(request.user, 2) or auth_test(request.user, 1)):
+        return redirect('home')
+
     tags = Tag.objects.all()
     tag_count = tags.count()
     tag_filter = TagFilter(request.GET, queryset=tags)
+#    tag_filter = TagFilter({'name': 'a', 'description': '', 'creator': ''}, queryset=tags)
     tags = tag_filter.qs
 
     context = {'tags':tags,
@@ -362,9 +463,13 @@ def TagList(request):
                'tag_filter':tag_filter}
     return render(request, 'report/tag_list.html', context)
 
+
 def ProgressTaken(request):
     if not request.user.username:
         return redirect('/login/?next=%s' % request.path)
+
+    if not auth_test(request.user, 4):
+        return redirect('home')
 
     user = request.user
     reports = Report.objects.filter(taker=user).order_by('urgency','importance', '-date_reported__date')
@@ -376,9 +481,13 @@ def ProgressTaken(request):
                'reports_not_approved' : reports_not_approved}
     return render(request, 'report/progress_taken.html', context)
 
+
 def ProgressSubscribed(request):
     if not request.user.username:
         return redirect('/login/?next=%s' % request.path)
+
+    if not auth_test(request.user, 4):
+        return redirect('home')
 
     tags = request.user.profile.tag.all()
     reports = Report.objects.none()
@@ -532,28 +641,3 @@ def Dashboard(request):
     context = {'data' : data,
                'labels' : labels}
     return render(request, 'report/dashboard.html', context)
-
-
-    reports_on_going1 = Report.objects.filter(progress_lte=3
-                                     ).annotate(month=TruncMonth('date_reported')
-                                     ).values('month'
-                                     ).annotate(c=Count('id')
-                                     ).values('date_reported__month', 'date_reported__year', 'c')
-    #
-    # reports_on_going2 = Report.objects.filter(progress=5
-    #                                  ).annotate(month=TruncMonth('date_reported')
-    #                                  ).values('month'
-    #                                  ).annotate(c=Count('id')
-    #                                  ).values('date_reported__month', 'date_reported__year', 'c')
-    #
-    # reports_not_approved = Report.objects.filter(progress=4
-    #                                     ).annotate(month=TruncMonth('date_reported')
-    #                                     ).values('month'
-    #                                     ).annotate(c=Count('id')
-    #                                     ).values('date_reported__month', 'date_reported__year', 'c')
-    #
-    # reports_finished = Report.objects.filter(progress_gte=6
-    #                                 ).annotate(month=TruncMonth('date_reported')
-    #                                 ).values('month'
-    #                                 ).annotate(c=Count('id')
-    #                                 ).values('date_reported__month', 'date_reported__year', 'c')

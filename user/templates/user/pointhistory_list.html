@@ -6,7 +6,52 @@
     <div class="col">
         <div class="card card-body">
             <form method="get">
-                {{point_log_filter.form|crispy}}
+                <div class="row">
+                    <div class="col">
+                        <div id="div_id_date_after" class="form-group">
+                            <label for="id_date_after" class="">Log(s) After</label>
+                            <div class=""> <input type="date" name="date_after" class="dateinput form-control" id="id_date_after" {% if filter_data.date_after %} value="{{filter_data.date_after}}" {% endif %}></div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div id="div_id_date_before" class="form-group">
+                            <label for="id_date_before" class="">Log(s) Before (MM/DD/YYYY)</label>
+                            <div class=""> <input type="date" name="date_before" class="dateinput form-control" id="id_date_before" {% if filter_data.date_before %} value="{{filter_data.date_before}}" {% endif %}></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <div id="div_id_point_gte" class="form-group">
+                            <label for="id_point_gte" class="">Point ≥</label>
+                            <div class=""> <input type="number" name="point_gte" step="any" class="numberinput form-control" id="id_point_gte" {% if filter_data.point_gte %} value="{{filter_data.point_gte}}" {% endif %}></div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div id="div_id_point_lte" class="form-group">
+                            <label for="id_point_lte" class="">Point ≤</label>
+                            <div class=""> <input type="number" name="point_lte" step="any" class="numberinput form-control" id="id_point_lte" {% if filter_data.point_lte %} value="{{filter_data.point_lte}}" {% endif %}></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <div id="div_id_receiver" class="form-group">
+                            <label for="id_receiver" class="">Receiver's Username</label>
+                            <div class=""> <input type="text" name="receiver" class="textinput textInput form-control" id="id_receiver" {% if filter_data.receiver %} value="{{filter_data.receiver}}" {% endif %}> </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div id="div_id_writer" class="form-group">
+                            <label for="id_writer" class="">Writer's Username</label>
+                            <div class=""> <input type="text" name="writer" class="textinput textInput form-control" id="id_writer" {% if filter_data.writer %} value="{{filter_data.writer}}" {% endif %}> </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="div_id_note" class="form-group">
+                    <label for="id_note" class="">Note</label>
+                    <div class=""> <input type="text" name="note" class="textinput textInput form-control" id="id_note" {% if filter_data.note %} value="{{filter_data.note}}" {% endif %}> </div>
+                </div>
                 <button class="btn btn-outline-info" type="submit">
                     Search
                 </button>
