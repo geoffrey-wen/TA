@@ -90,6 +90,7 @@ class ReportListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     def handle_no_permission(self):
         if not self.request.user.username:
             return redirect('/login/?next=%s' % self.request.path)
+        messages.error(self.request, f"Sorry you are not authorized !")
         return redirect('home')
 
 
@@ -134,6 +135,7 @@ class UserReportListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     def handle_no_permission(self):
         if not self.request.user.username:
             return redirect('/login/?next=%s' % self.request.path)
+        messages.error(self.request, f"Sorry you are not authorized !")
         return redirect('home')
 
 
@@ -178,6 +180,7 @@ class UserTakenListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     def handle_no_permission(self):
         if not self.request.user.username:
             return redirect('/login/?next=%s' % self.request.path)
+        messages.error(self.request, f"Sorry you are not authorized !")
         return redirect('home')
 
 
@@ -222,6 +225,7 @@ class UserCollaborationListView(LoginRequiredMixin, UserPassesTestMixin, ListVie
     def handle_no_permission(self):
         if not self.request.user.username:
             return redirect('/login/?next=%s' % self.request.path)
+        messages.error(self.request, f"Sorry you are not authorized !")
         return redirect('home')
 
 
@@ -274,6 +278,7 @@ class UserCareerListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     def handle_no_permission(self):
         if not self.request.user.username:
             return redirect('/login/?next=%s' % self.request.path)
+        messages.error(self.request, f"Sorry you are not authorized !")
         return redirect('home')
 
 
@@ -318,6 +323,7 @@ class UserPointListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     def handle_no_permission(self):
         if not self.request.user.username:
             return redirect('/login/?next=%s' % self.request.path)
+        messages.error(self.request, f"Sorry you are not authorized !")
         return redirect('home')
 
 
@@ -357,6 +363,7 @@ class TagReportListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     def handle_no_permission(self):
         if not self.request.user.username:
             return redirect('/login/?next=%s' % self.request.path)
+        messages.error(self.request, f"Sorry you are not authorized !")
         return redirect('home')
 
 
@@ -394,6 +401,7 @@ class SubscribedReportListView(LoginRequiredMixin, UserPassesTestMixin, ListView
     def handle_no_permission(self):
         if not self.request.user.username:
             return redirect('/login/?next=%s' % self.request.path)
+        messages.error(self.request, f"Sorry you are not authorized !")
         return HttpResponseRedirect(reverse('user-reports', kwargs={'username': self.request.user.username}))
 
 
@@ -475,6 +483,7 @@ class ReportDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     def handle_no_permission(self):
         if not self.request.user.username:
             return redirect('/login/?next=%s' % self.request.path)
+        messages.error(self.request, f"Sorry you are not authorized !")
         return redirect('home')
 
 
@@ -498,6 +507,7 @@ class ReportCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     def handle_no_permission(self):
         if not self.request.user.username:
             return redirect('/login/?next=%s' % self.request.path)
+        messages.error(self.request, f"Sorry you are not authorized !")
         return redirect('home')
 
 
@@ -524,6 +534,7 @@ class ReportUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     def handle_no_permission(self):
         if not self.request.user.username:
             return redirect('/login/?next=%s' % self.request.path)
+        messages.error(self.request, f"Sorry you are not authorized !")
         return redirect('home')
 
 
@@ -546,6 +557,7 @@ class ReportDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def handle_no_permission(self):
         if not self.request.user.username:
             return redirect('/login/?next=%s' % self.request.path)
+        messages.error(self.request, f"Sorry you are not authorized !")
         return redirect('home')
 
 
@@ -569,6 +581,7 @@ class TagCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     def handle_no_permission(self):
         if not self.request.user.username:
             return redirect('/login/?next=%s' % self.request.path)
+        messages.error(self.request, f"Sorry you are not authorized !")
         return redirect('home')
 
 
@@ -577,6 +590,7 @@ def TagList(request):
         return redirect('/login/?next=%s' % request.path)
 
     if not (auth_test(request.user, 3) or auth_test(request.user, 2) or auth_test(request.user, 1)):
+        messages.error(request, f"Sorry you are not authorized !")
         return redirect('home')
 
     tags = Tag.objects.all()
@@ -599,6 +613,7 @@ def ProgressTaken(request):
         return redirect('/login/?next=%s' % request.path)
 
     if not auth_test(request.user, 4):
+        messages.error(request, f"Sorry you are not authorized !")
         return redirect('home')
 
     user = request.user
@@ -620,6 +635,7 @@ def ProgressSubscribed(request):
         return redirect('/login/?next=%s' % request.path)
 
     if not auth_test(request.user, 4):
+        messages.error(request, f"Sorry you are not authorized !")
         return redirect('home')
 
     tags = request.user.profile.tag.all()
