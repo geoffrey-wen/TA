@@ -57,10 +57,10 @@ def auth_template(user):
                                 'progress_subscribed': auth_test_list[3]},
                     'organization':{'create_a_unit': auth_test_list[5],
                                     'unit_hierarchy': auth_test_list[5],
-                                    'all_user': auth_test_list[5],
+                                    'all_users': auth_test_list[5],
                                     'manage_authorization': auth_test_list[6],
                                     'create_a_point_log': auth_test_list[7],
-                                    'all_point_log': auth_test_list[7]}
+                                    'all_point_logs': auth_test_list[7]}
                     }
     return_dict = {'auth_test_list': auth_test_list,
                    'template_test': template_test}
@@ -70,7 +70,7 @@ def auth_template(user):
 def About(request):
     signed_in_user = request.user
     context = {'template_test': auth_template(signed_in_user)['template_test']}
-    return render(request, 'report/about.html')
+    return render(request, 'report/about.html', context)
 
 
 class ReportListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
@@ -117,7 +117,12 @@ class UserReportListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
             temp.append(user.reporttaken_set.filter(progress__gte = 6).count())
             context['stats'] = temp
         signed_in_user = self.request.user
-        context['template_test'] = auth_template(signed_in_user)['template_test']
+        test_dict = auth_template(signed_in_user)
+        context['template_test'] = test_dict['template_test']
+        if user == self.request.user:
+            context['feature_test'] = [True for i in Auth.Feature]
+        else :
+            context['feature_test'] = test_dict['auth_test_list']
         return context
 
     def test_func(self):
@@ -156,7 +161,12 @@ class UserTakenListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
             temp.append(user.reporttaken_set.filter(progress__gte = 6).count())
             context['stats'] = temp
         signed_in_user = self.request.user
-        context['template_test'] = auth_template(signed_in_user)['template_test']
+        test_dict = auth_template(signed_in_user)
+        context['template_test'] = test_dict['template_test']
+        if user == self.request.user:
+            context['feature_test'] = [True for i in Auth.Feature]
+        else :
+            context['feature_test'] = test_dict['auth_test_list']
         return context
 
     def test_func(self):
@@ -195,7 +205,12 @@ class UserCollaborationListView(LoginRequiredMixin, UserPassesTestMixin, ListVie
             temp.append(user.reporttaken_set.filter(progress__gte = 6).count())
             context['stats'] = temp
         signed_in_user = self.request.user
-        context['template_test'] = auth_template(signed_in_user)['template_test']
+        test_dict = auth_template(signed_in_user)
+        context['template_test'] = test_dict['template_test']
+        if user == self.request.user:
+            context['feature_test'] = [True for i in Auth.Feature]
+        else :
+            context['feature_test'] = test_dict['auth_test_list']
         return context
 
     def test_func(self):
@@ -242,7 +257,12 @@ class UserCareerListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
             temp.append(user.reporttaken_set.filter(progress__gte = 6).count())
             context['stats'] = temp
         signed_in_user = self.request.user
-        context['template_test'] = auth_template(signed_in_user)['template_test']
+        test_dict = auth_template(signed_in_user)
+        context['template_test'] = test_dict['template_test']
+        if user == self.request.user:
+            context['feature_test'] = [True for i in Auth.Feature]
+        else :
+            context['feature_test'] = test_dict['auth_test_list']
         return context
 
     def test_func(self):
@@ -281,7 +301,12 @@ class UserPointListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
             temp.append(user.reporttaken_set.filter(progress__gte = 6).count())
             context['stats'] = temp
         signed_in_user = self.request.user
-        context['template_test'] = auth_template(signed_in_user)['template_test']
+        test_dict = auth_template(signed_in_user)
+        context['template_test'] = test_dict['template_test']
+        if user == self.request.user:
+            context['feature_test'] = [True for i in Auth.Feature]
+        else :
+            context['feature_test'] = test_dict['auth_test_list']
         return context
 
     def test_func(self):
@@ -381,6 +406,7 @@ class ReportDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         context['collaborations'] = Collaboration.objects.filter(report = report).order_by('date')
         signed_in_user = self.request.user
         context['template_test'] = auth_template(signed_in_user)['template_test']
+        context['feature_test'] = auth_template(signed_in_user)['auth_test_list']
         return context
 
     def post(self, request, *args, **kwargs):
@@ -748,6 +774,8 @@ def Dashboard(request):
             data['finished'].append(0)
 
     # print([label.strftime("%d %b %y") for label in labels])
+    signed_in_user = request.user
     context = {'data' : data,
-               'labels' : labels}
+               'labels' : labels,
+               'template_test': auth_template(signed_in_user)['template_test']}
     return render(request, 'report/dashboard.html', context)

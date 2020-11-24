@@ -32,7 +32,7 @@
         </h2>
             </div>
                 {% if object.taker %}
-                {% else %}
+                {% elif feature_test.3 %}
                     <div class="col-2 mt-2 mr-3">
                         <button class="btn btn-outline-primary mb-1" name="takeButton" type="submit" value=True >Take</button>
                     </div>
@@ -163,6 +163,7 @@
         </div>
     </article>
 {% endfor %}
+    {% if feature_test.8 %}
     <article class="media content-section">
         <img class="rounded-circle article-img" src="{{ user.profile.image.url }}">
         <div class="media-body">
@@ -176,6 +177,7 @@
             <button class="btn btn-outline-info" name="collab" type="submit" value=True>Collaborate</button>
         </div>
     </article>
+    {% endif %}
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-sm">
         <div class="modal-content">

@@ -35,14 +35,21 @@
 <article class="media content-section">
     <div class="media-body">
 <nav>
-  <div class="nav nav-tabs nav-justified" id="nav-tab" role="tablist">
-    <a class="nav-item nav-link align-middle" href="{% url 'user-reports' selected_user.username %} ">Report Reported</a>
-    <a class="nav-item nav-link align-middle" href="{% url 'user-taken' selected_user.username %}">Report Taken</a>
-    <a class="nav-item nav-link align-middle" href="{% url 'user-collab' selected_user.username %}">Collaboration</a>
-    <a class="nav-item nav-link align-middle active" >Career History</a>
-    <a class="nav-item nav-link align-middle" href="{% url 'user-point' selected_user.username %}">Point History</a>
-    <a class="nav-item nav-link align-middle" >Training History*</a>
-  </div>
+    <div class="nav nav-tabs nav-justified" id="nav-tab" role="tablist">
+        {% if feature_test.4 or feature_test.1 %}
+        <a class="nav-item nav-link align-middle" href="{% url 'user-reports' selected_user.username %} ">Report Reported</a>
+        {% endif %}
+        {% if feature_test.4 or feature_test.3 %}
+        <a class="nav-item nav-link align-middle" href="{% url 'user-taken' selected_user.username %}">Report Taken</a>
+        {% endif %}
+        {% if feature_test.4 or feature_test.1 %}
+        <a class="nav-item nav-link align-middle" href="{% url 'user-collab' selected_user.username %}">Collaboration</a>
+        {% endif %}
+        <a class="nav-item nav-link align-middle active" >Career History</a>
+        {% if feature_test.4 or feature_test.7 %}
+        <a class="nav-item nav-link align-middle" href="{% url 'user-point' selected_user.username %}">Point History</a>
+        {% endif %}
+    </div>
 </nav>
 <div class="tab-content mt-4">
     <div class="table-responsive">
