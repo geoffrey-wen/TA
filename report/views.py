@@ -43,8 +43,33 @@ def auth_test(user, featurenum):
     else:
         return True
 
+def auth_template(user):
+    auth_test_list = [auth_test(user, feature.value) for feature in Auth.Feature]
+
+    template_test ={'left_navbar':{'subscribed': auth_test_list[1],
+                                   'progress': auth_test_list[3]},
+                    'report':{'create_a_report': auth_test_list[0],
+                              'all_reports': auth_test_list[1],
+                              'subscribed_reports': auth_test_list[1]},
+                    'tag':{'create_a_tag': auth_test_list[2],
+                           'all_tags': auth_test_list[0] or auth_test_list[1] or auth_test_list[2]},
+                    'progress':{'progress_taken': auth_test_list[3],
+                                'progress_subscribed': auth_test_list[3]},
+                    'organization':{'create_a_unit': auth_test_list[5],
+                                    'unit_hierarchy': auth_test_list[5],
+                                    'all_user': auth_test_list[5],
+                                    'manage_authorization': auth_test_list[6],
+                                    'create_a_point_log': auth_test_list[7],
+                                    'all_point_log': auth_test_list[7]}
+                    }
+    return_dict = {'auth_test_list': auth_test_list,
+                   'template_test': template_test}
+    return return_dict
+
 
 def About(request):
+    signed_in_user = request.user
+    context = {'template_test': auth_template(signed_in_user)['template_test']}
     return render(request, 'report/about.html')
 
 
@@ -53,10 +78,18 @@ class ReportListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     ordering = ['-date_reported__date','urgency','importance']
     paginate_by = 5
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        signed_in_user = self.request.user
+        context['template_test'] = auth_template(signed_in_user)['template_test']
+        return context
+
     def test_func(self):
         return auth_test(self.request.user, 2)
 
     def handle_no_permission(self):
+        if not self.request.user.username:
+            return redirect('/login/?next=%s' % self.request.path)
         return redirect('home')
 
 
@@ -83,6 +116,8 @@ class UserReportListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
             temp.append(user.reporttaken_set.filter(progress = 4).count())
             temp.append(user.reporttaken_set.filter(progress__gte = 6).count())
             context['stats'] = temp
+        signed_in_user = self.request.user
+        context['template_test'] = auth_template(signed_in_user)['template_test']
         return context
 
     def test_func(self):
@@ -92,6 +127,8 @@ class UserReportListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         return auth_test(self.request.user, 5) or auth_test(self.request.user, 2)
 
     def handle_no_permission(self):
+        if not self.request.user.username:
+            return redirect('/login/?next=%s' % self.request.path)
         return redirect('home')
 
 
@@ -118,6 +155,8 @@ class UserTakenListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
             temp.append(user.reporttaken_set.filter(progress = 4).count())
             temp.append(user.reporttaken_set.filter(progress__gte = 6).count())
             context['stats'] = temp
+        signed_in_user = self.request.user
+        context['template_test'] = auth_template(signed_in_user)['template_test']
         return context
 
     def test_func(self):
@@ -127,6 +166,8 @@ class UserTakenListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         return auth_test(self.request.user, 5) or auth_test(self.request.user, 4)
 
     def handle_no_permission(self):
+        if not self.request.user.username:
+            return redirect('/login/?next=%s' % self.request.path)
         return redirect('home')
 
 
@@ -153,6 +194,8 @@ class UserCollaborationListView(LoginRequiredMixin, UserPassesTestMixin, ListVie
             temp.append(user.reporttaken_set.filter(progress = 4).count())
             temp.append(user.reporttaken_set.filter(progress__gte = 6).count())
             context['stats'] = temp
+        signed_in_user = self.request.user
+        context['template_test'] = auth_template(signed_in_user)['template_test']
         return context
 
     def test_func(self):
@@ -162,6 +205,8 @@ class UserCollaborationListView(LoginRequiredMixin, UserPassesTestMixin, ListVie
         return auth_test(self.request.user, 5) or auth_test(self.request.user, 2)
 
     def handle_no_permission(self):
+        if not self.request.user.username:
+            return redirect('/login/?next=%s' % self.request.path)
         return redirect('home')
 
 
@@ -196,6 +241,8 @@ class UserCareerListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
             temp.append(user.reporttaken_set.filter(progress = 4).count())
             temp.append(user.reporttaken_set.filter(progress__gte = 6).count())
             context['stats'] = temp
+        signed_in_user = self.request.user
+        context['template_test'] = auth_template(signed_in_user)['template_test']
         return context
 
     def test_func(self):
@@ -205,6 +252,8 @@ class UserCareerListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         return auth_test(self.request.user, 5) or auth_test(self.request.user, 6)
 
     def handle_no_permission(self):
+        if not self.request.user.username:
+            return redirect('/login/?next=%s' % self.request.path)
         return redirect('home')
 
 
@@ -231,6 +280,8 @@ class UserPointListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
             temp.append(user.reporttaken_set.filter(progress = 4).count())
             temp.append(user.reporttaken_set.filter(progress__gte = 6).count())
             context['stats'] = temp
+        signed_in_user = self.request.user
+        context['template_test'] = auth_template(signed_in_user)['template_test']
         return context
 
     def test_func(self):
@@ -240,6 +291,8 @@ class UserPointListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         return auth_test(self.request.user, 5) or auth_test(self.request.user, 8)
 
     def handle_no_permission(self):
+        if not self.request.user.username:
+            return redirect('/login/?next=%s' % self.request.path)
         return redirect('home')
 
 
@@ -258,6 +311,8 @@ class TagReportListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         context['description'] = tag.description
         context['creator'] = tag.creator
         context['is_subscribed'] = self.request.user.profile in tag.subscriber_set.all()
+        signed_in_user = self.request.user
+        context['template_test'] = auth_template(signed_in_user)['template_test']
         return context
 
     def post(self, request, *args, **kwargs):
@@ -275,6 +330,8 @@ class TagReportListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         return auth_test(self.request.user, 3) or auth_test(self.request.user, 2)
 
     def handle_no_permission(self):
+        if not self.request.user.username:
+            return redirect('/login/?next=%s' % self.request.path)
         return redirect('home')
 
 
@@ -300,10 +357,18 @@ class SubscribedReportListView(LoginRequiredMixin, UserPassesTestMixin, ListView
         ).order_by('taken_status','-date_reported__date','urgency','importance')
         return queryset
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        signed_in_user = self.request.user
+        context['template_test'] = auth_template(signed_in_user)['template_test']
+        return context
+
     def test_func(self):
         return auth_test(self.request.user, 2)
 
     def handle_no_permission(self):
+        if not self.request.user.username:
+            return redirect('/login/?next=%s' % self.request.path)
         return HttpResponseRedirect(reverse('user-reports', kwargs={'username': self.request.user.username}))
 
 
@@ -314,6 +379,8 @@ class ReportDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         context = super().get_context_data(**kwargs)
         report = get_object_or_404(Report, pk=self.kwargs.get('pk'))
         context['collaborations'] = Collaboration.objects.filter(report = report).order_by('date')
+        signed_in_user = self.request.user
+        context['template_test'] = auth_template(signed_in_user)['template_test']
         return context
 
     def post(self, request, *args, **kwargs):
@@ -380,12 +447,20 @@ class ReportDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         return auth_test(self.request.user, 2)
 
     def handle_no_permission(self):
+        if not self.request.user.username:
+            return redirect('/login/?next=%s' % self.request.path)
         return redirect('home')
 
 
 class ReportCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Report
     fields = ['title', 'content', 'image', 'tag', 'urgency', 'importance']
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        signed_in_user = self.request.user
+        context['template_test'] = auth_template(signed_in_user)['template_test']
+        return context
 
     def form_valid(self, form):
         form.instance.reporter = self.request.user
@@ -395,12 +470,20 @@ class ReportCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
         return auth_test(self.request.user, 1)
 
     def handle_no_permission(self):
+        if not self.request.user.username:
+            return redirect('/login/?next=%s' % self.request.path)
         return redirect('home')
 
 
 class ReportUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Report
     fields = ['title', 'content', 'image', 'tag', 'urgency', 'importance']
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        signed_in_user = self.request.user
+        context['template_test'] = auth_template(signed_in_user)['template_test']
+        return context
 
     def form_valid(self, form):
         form.instance.reporter = self.request.user
@@ -413,12 +496,20 @@ class ReportUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return False
 
     def handle_no_permission(self):
+        if not self.request.user.username:
+            return redirect('/login/?next=%s' % self.request.path)
         return redirect('home')
 
 
 class ReportDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Report
     success_url = '/'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        signed_in_user = self.request.user
+        context['template_test'] = auth_template(signed_in_user)['template_test']
+        return context
 
     def test_func(self):
         report = self.get_object()
@@ -427,12 +518,20 @@ class ReportDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         return False
 
     def handle_no_permission(self):
+        if not self.request.user.username:
+            return redirect('/login/?next=%s' % self.request.path)
         return redirect('home')
 
 
 class TagCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Tag
     fields = ['name','description']
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        signed_in_user = self.request.user
+        context['template_test'] = auth_template(signed_in_user)['template_test']
+        return context
 
     def form_valid(self, form):
         form.instance.creator = self.request.user
@@ -442,6 +541,8 @@ class TagCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
         return auth_test(self.request.user, 3)
 
     def handle_no_permission(self):
+        if not self.request.user.username:
+            return redirect('/login/?next=%s' % self.request.path)
         return redirect('home')
 
 
@@ -458,9 +559,12 @@ def TagList(request):
 #    tag_filter = TagFilter({'name': 'a', 'description': '', 'creator': ''}, queryset=tags)
     tags = tag_filter.qs
 
+    signed_in_user = request.user
+
     context = {'tags':tags,
                'tag_count':tag_count,
-               'tag_filter':tag_filter}
+               'tag_filter':tag_filter,
+               'template_test' : auth_template(signed_in_user)['template_test']}
     return render(request, 'report/tag_list.html', context)
 
 
@@ -476,9 +580,12 @@ def ProgressTaken(request):
     reports_ongoing = reports.filter(progress__lte=3) | reports.filter(progress=5)
     reports_finished = reports.filter(progress__gte=6).order_by('-date_last_progress')
     reports_not_approved = reports.filter(progress=4).order_by('-date_last_progress')
+
+    signed_in_user = request.user
     context = {'reports_ongoing' : reports_ongoing,
                'reports_finished' : reports_finished,
-               'reports_not_approved' : reports_not_approved}
+               'reports_not_approved' : reports_not_approved,
+               'template_test' : auth_template(signed_in_user)['template_test']}
     return render(request, 'report/progress_taken.html', context)
 
 
@@ -499,10 +606,13 @@ def ProgressSubscribed(request):
     reports_ongoing = reports.filter(progress__lte=3) | reports.filter(progress=5)
     reports_finished = reports.filter(progress__gte=6).order_by('-date_last_progress')
     reports_not_approved = reports.filter(progress=4).order_by('-date_last_progress')
+
+    signed_in_user = request.user
     context = {'reports_not_taken' : reports_not_taken,
                'reports_ongoing': reports_ongoing,
                'reports_finished' : reports_finished,
-               'reports_not_approved' : reports_not_approved}
+               'reports_not_approved' : reports_not_approved,
+               'template_test' : auth_template(signed_in_user)['template_test']}
     return render(request, 'report/progress_subscribed.html', context)
 
 # def ProgressList(request):

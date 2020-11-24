@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 import datetime
 from .filters import UserFilter, PointHistoryFilter
 from django.db.models import Sum
-from report.views import auth_test
+from report.views import auth_test, auth_template
 
 
 def register(request):
@@ -22,7 +22,9 @@ def register(request):
             return redirect('login')
     else:
         form = UserRegisterForm()
-    return render(request, 'user/register.html', {'form': form})
+
+    signed_in_user = request.user
+    return render(request, 'user/register.html', {'form': form, 'template_test' : auth_template(signed_in_user)['template_test']})
 
 
 def profile(request):
@@ -41,9 +43,11 @@ def profile(request):
         u_form = UserUpdateForm(instance=request.user)
         p_form = ProfileUpdateForm(instance=request.user.profile)
 
+    signed_in_user = request.user
     context = {
         'u_form': u_form,
         'p_form': p_form,
+        'template_test': auth_template(signed_in_user)['template_test']
     }
 
     return render(request, 'user/profile.html', context)
@@ -53,6 +57,12 @@ class UnitCreateView(LoginRequiredMixin,  UserPassesTestMixin, CreateView):
     model = Unit
     fields = ['name', 'superior']
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        signed_in_user = self.request.user
+        context['template_test'] = auth_template(signed_in_user)['template_test']
+        return context
+
     def form_valid(self, form):
         return super().form_valid(form)
 
@@ -60,6 +70,8 @@ class UnitCreateView(LoginRequiredMixin,  UserPassesTestMixin, CreateView):
         return auth_test(self.request.user, 6)
 
     def handle_no_permission(self):
+        if not self.request.user.username:
+            return redirect('/login/?next=%s' % self.request.path)
         return redirect('home')
 
 
@@ -172,10 +184,12 @@ def UnitDetail(request, pk):
 
         return HttpResponse()
 
+    signed_in_user = request.user
     context = { 'unit' : unit,
                 'members' : members,
                 'unitless_user' : unitless_user.order_by('username'),
-                'loopless_unit' : loopless_unit.order_by('name')}
+                'loopless_unit' : loopless_unit.order_by('name'),
+                'template_test': auth_template(signed_in_user)['template_test']}
     return render(request, 'user/unit_detail.html', context)
 
 
@@ -192,7 +206,9 @@ def UnitHierarchy(request):
         if unit.level() == 1:
             top_units.append(unit)
 
-    context = { 'top_units' : top_units}
+    signed_in_user = request.user
+    context = { 'top_units' : top_units,
+                'template_test': auth_template(signed_in_user)['template_test']}
     return render(request, 'user/unit_list.html', context)
 
 
@@ -269,16 +285,24 @@ def AuthDetail(request):
                             messages.success(request, f"\"{auth_list[i][0].label}\" authorization has been given to level {datum} users !")
         return HttpResponse()
 
+    signed_in_user = request.user
     context = {'auth_list' : auth_list,
                'users' : users,
                'units' : units,
-               'levels' : levels}
+               'levels' : levels,
+               'template_test': auth_template(signed_in_user)['template_test']}
     return render(request, 'user/auth_detail.html', context)
 
 
 class PointHistoryCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = PointHistory
     fields = ['user', 'point', 'note']
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        signed_in_user = self.request.user
+        context['template_test'] = auth_template(signed_in_user)['template_test']
+        return context
 
     def form_valid(self, form):
         form.instance.writer = self.request.user
@@ -288,6 +312,8 @@ class PointHistoryCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView
         return auth_test(self.request.user, 8)
 
     def handle_no_permission(self):
+        if not self.request.user.username:
+            return redirect('/login/?next=%s' % self.request.path)
         return redirect('home')
 
 
@@ -313,8 +339,11 @@ def UserList(request):
             qs = qs.filter(careerhistory__job__icontains = keywordjob)
         users = users|qs
     users = users.distinct()
+
+    signed_in_user = request.user
     context = {'users':users,
-               'user_filter':user_filter}
+               'user_filter':user_filter,
+               'template_test': auth_template(signed_in_user)['template_test']}
     return render(request, 'user/user_list.html', context)
 
 
@@ -332,9 +361,11 @@ def PointHistoryList(request):
     logs_sum = point_logs.aggregate(points=Sum('point'))['points']
     logs_count = point_logs.count()
 
+    signed_in_user = request.user
     context = {'point_logs': point_logs.order_by('-date'),
                'point_log_filter': point_log_filter,
                'logs_sum' :logs_sum,
                'logs_count' : logs_count,
-               'filter_data' : request.GET}
+               'filter_data' : request.GET,
+               'template_test': auth_template(signed_in_user)['template_test']}
     return render(request, 'user/pointhistory_list.html', context)
