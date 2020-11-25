@@ -27,7 +27,7 @@ urlpatterns = [
     path('about/', reportview.About, name='about'),
     path('dashboard/', reportview.Dashboard, name='dashboard'),
 
-    path('login/', authview.LoginView.as_view(template_name='user/login.html'), name='login'),
+    path('login/', authview.LoginView.as_view(template_name='user/login.html', redirect_authenticated_user=True), name='login'),
     path('logout/', authview.LogoutView.as_view(template_name='user/logout.html'), name='logout'),
     path('password-reset/', authview.PasswordResetView.as_view(template_name='user/password_reset.html'), name='password_reset'),
     path('password-reset/done/', authview.PasswordResetDoneView.as_view(template_name='user/password_reset_done.html'), name='password_reset_done'),
