@@ -16,12 +16,19 @@
                 {{ object.date_reported|date:"F d, Y" }}
             </small>
                 </div>
-            {% if object.reporter == user %}
-                <div class="col-*-* mr-2">
-            <a class="btn btn-outline-info btn-sm mb-1 ml-3 mr-2"
-               href="{% url 'report-update' object.id %}">Update</a>
-            <a class="btn btn-outline-danger btn-sm mb-1" href="{% url 'report-delete' object.id %}">Delete</a>
-                </div>
+                {% if object.taker %}
+                    {% if object.taker == user %}
+                        <div class="col-*-* mr-2">
+                            <a class="btn btn-outline-danger btn-sm mb-1" href="{% url 'report-delete' object.id %}">Delete</a>
+                        </div>
+                    {% endif %}
+                {% else %}
+                    {% if object.reporter == user %}
+                        <div class="col-*-* mr-2">
+                            <a class="btn btn-outline-info btn-sm mb-1 ml-3 mr-2" href="{% url 'report-update' object.id %}">Update</a>
+                            <a class="btn btn-outline-danger btn-sm mb-1" href="{% url 'report-delete' object.id %}">Delete</a>
+                        </div>
+                    {% endif %}
                 {% endif %}
             </div>
         </div>

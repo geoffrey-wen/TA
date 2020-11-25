@@ -527,6 +527,8 @@ class ReportUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
     def test_func(self):
         report = self.get_object()
+        if report.taker:
+            return False
         if self.request.user == report.reporter:
             return True
         return False
@@ -550,7 +552,9 @@ class ReportDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def test_func(self):
         report = self.get_object()
-        if self.request.user == report.reporter:
+        if report.taker and self.request.user == report.taker:
+            return True
+        elif not(report.taker) and self.request.user == report.reporter:
             return True
         return False
 

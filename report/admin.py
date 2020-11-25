@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Report, Tag, Collaboration, Images
+from .models import Report, Tag, Collaboration
 
 class ReportAdmin(admin.ModelAdmin):
     list_display = ('title', 'reporter', 'date_reported')
@@ -11,4 +11,3 @@ class TagAdmin(admin.ModelAdmin):
 admin.site.register(Report, ReportAdmin)
 admin.site.register(Tag, TagAdmin)
 admin.site.register(Collaboration)
-admin.site.register(Images)
