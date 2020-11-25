@@ -53,6 +53,7 @@ class Report(models.Model):
     def get_absolute_url(self):
         return reverse('report-detail', kwargs={'pk': self.pk})
 
+
 class Collaboration(models.Model):
     report = models.ForeignKey(Report, on_delete=models.CASCADE)
     subject = models.CharField(max_length=100, null=True)
@@ -61,7 +62,8 @@ class Collaboration(models.Model):
     collaborator = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     image = models.ImageField(upload_to='report_images', null=True, blank=True)
 
-class Images(models.Model):
-    report = models.ForeignKey(Report, on_delete=models.CASCADE, null=True, blank=True)
-    collaboration = models.ForeignKey(Collaboration, on_delete=models.CASCADE, null=True, blank=True)
-    image = models.ImageField(upload_to='report_images', null=True, blank=True)
+
+# class Images(models.Model):
+#     report = models.ForeignKey(Report, on_delete=models.CASCADE, null=True, blank=True)
+#     collaboration = models.ForeignKey(Collaboration, on_delete=models.CASCADE, null=True, blank=True)
+#     image = models.ImageField(upload_to='report_images', null=True, blank=True)
