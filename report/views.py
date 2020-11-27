@@ -476,7 +476,7 @@ class ReportDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
 
     def test_func(self):
         report = get_object_or_404(Report, pk=self.kwargs.get('pk'))
-        if report.reporter == self.request.user:
+        if report.reporter == self.request.user or report.taker == self.request.user:
             return True
         return auth_test(self.request.user, 2)
 
