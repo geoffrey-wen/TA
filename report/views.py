@@ -135,8 +135,7 @@ class UserReportListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     def handle_no_permission(self):
         if not self.request.user.username:
             return redirect('/login/?next=%s' % self.request.path)
-        messages.error(self.request, f"Sorry you are not authorized !")
-        return redirect('home')
+        return HttpResponseRedirect(reverse('user-taken', kwargs={'username': self.kwargs.get('username')}))
 
 
 class UserTakenListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
@@ -180,8 +179,7 @@ class UserTakenListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     def handle_no_permission(self):
         if not self.request.user.username:
             return redirect('/login/?next=%s' % self.request.path)
-        messages.error(self.request, f"Sorry you are not authorized !")
-        return redirect('home')
+        return HttpResponseRedirect(reverse('user-collab', kwargs={'username': self.kwargs.get('username')}))
 
 
 class UserCollaborationListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
@@ -225,8 +223,7 @@ class UserCollaborationListView(LoginRequiredMixin, UserPassesTestMixin, ListVie
     def handle_no_permission(self):
         if not self.request.user.username:
             return redirect('/login/?next=%s' % self.request.path)
-        messages.error(self.request, f"Sorry you are not authorized !")
-        return redirect('home')
+        return HttpResponseRedirect(reverse('user-career', kwargs={'username': self.kwargs.get('username')}))
 
 
 class UserCareerListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
@@ -278,8 +275,7 @@ class UserCareerListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     def handle_no_permission(self):
         if not self.request.user.username:
             return redirect('/login/?next=%s' % self.request.path)
-        messages.error(self.request, f"Sorry you are not authorized !")
-        return redirect('home')
+        return HttpResponseRedirect(reverse('user-point', kwargs={'username': self.kwargs.get('username')}))
 
 
 class UserPointListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
