@@ -235,7 +235,6 @@ def AuthDetail(request):
     levels = list(set([unit.level() for unit in units]))
 
     if request.method == 'POST':
-        print('send')
         post_data = []
         for i in range(len(auth_list)):
             temp = []
