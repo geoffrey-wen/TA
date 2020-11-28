@@ -140,7 +140,7 @@ class Auth(models.Model):
         view_reports = 2
         create_a_tag = 3
         take_a_report = 4
-        view_user_activity = 5
+        view_user_activities = 5
         manage_organization = 6
         manage_authorization = 7
         manage_points = 8
