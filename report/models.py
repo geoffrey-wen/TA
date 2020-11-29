@@ -27,7 +27,7 @@ class Report(models.Model):
         Field_Checking = 2
         Approved = 3
         Not_Approved = 4
-        Responsing = 5
+        Responding = 5
         Resolved = 6
         Postponed = 7
         Failed = 8
