@@ -18,9 +18,9 @@ class Tag(models.Model):
 class Report(models.Model):
 
     class Level(models.IntegerChoices):
-        HIGH = 1
-        MEDIUM = 2
-        LOW = 3
+        High = 1
+        Medium = 2
+        Low = 3
 
     class TaskLevel(models.IntegerChoices):
         Task_Taken = 1
