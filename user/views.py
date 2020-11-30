@@ -233,6 +233,7 @@ def AuthDetail(request):
     users = User.objects.all()
     units = Unit.objects.all()
     levels = list(set([unit.level() for unit in units]))
+    levels.append(max(levels)+1)
 
     if request.method == 'POST':
         post_data = []
