@@ -22,6 +22,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
+    #admin/ harus dihapus
     path('admin/', admin.site.urls),
     path('', reportview.SubscribedReportListView.as_view(), name='home'),
     path('about/', reportview.About, name='about'),
@@ -30,7 +31,7 @@ urlpatterns = [
     path('login/', authview.LoginView.as_view(template_name='user/login.html', redirect_authenticated_user=True), name='login'),
     path('logout/', authview.LogoutView.as_view(template_name='user/logout.html'), name='logout'),
     path('password-reset/', authview.PasswordResetView.as_view(template_name='user/password_reset.html'), name='password_reset'),
-    path('password-reset/done/', authview.PasswordResetDoneView.as_view(template_name='user/password_reset_done.html'), name='password_reset_done'),
+    path('password-reset-done/', authview.PasswordResetDoneView.as_view(template_name='user/password_reset_done.html'), name='password_reset_done'),
     path('password-reset-confirm/<uidb64>/<token>/', authview.PasswordResetConfirmView.as_view(template_name='user/password_reset_confirm.html'), name='password_reset_confirm'),
     path('password-reset-complete/', authview.PasswordResetCompleteView.as_view(template_name='user/password_reset_complete.html'),name='password_reset_complete'),
 
