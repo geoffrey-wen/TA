@@ -86,6 +86,7 @@
     {% endfor%}
 </div>
 <div id="num-div" url="{{ auth_list|length }}" ></div>
+<div id="url-div" url="{% url 'auth-detail' %}"></div>
 </form>
 {% endblock%}
 
@@ -94,6 +95,7 @@
     <script type="text/javascript">
         $(document).ready(function(){
             const submitFormButton = $("#submit");
+            var divurl = document.getElementById('url-div').getAttribute('url');
             var num = document.getElementById('num-div').getAttribute('url');
             var addMoreUserButton = [];
             var addMoreUnitButton = [];
@@ -165,14 +167,14 @@
                 console.log(fd.get('foo[0]'))
 
                 $.ajax({
-                    url: 'auth',
+                    url: divurl,
                     type: 'POST',
                     data: fd,
                     processData: false,
                     contentType: false,
                     mimeType: 'multipart/form-data',
                     success: function(returndata){
-                        window.location.href = 'auth';
+                        window.location.href = divurl;
                     }
                 })
             });
