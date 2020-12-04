@@ -6,7 +6,7 @@
 {% for tag in user.profile.tag.all%}
 <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{% url 'tag-reports' tag.name %}">{{tag.name}}</a>
 {% endfor %}
-<a class="text-info text-large ml-1" href="{% url 'profile'%}"><strong>+</strong></a>
+<a class="text-info text-large ml-1" href="{% url 'tag-list'%}"><strong>+</strong></a>
 <br>
 <br>
 {% for object in object_list %}
