@@ -39,7 +39,7 @@ urlpatterns = [
     path('profile/', userview.profile, name='profile'),
 
     path('report-new/', reportview.ReportCreateView.as_view(), name='report-create'),
-    path('report/all/', reportview.ReportListView.as_view(), name='all-reports'),
+    path('report-all/', reportview.ReportListView.as_view(), name='all-reports'),
     path('report/<int:pk>/', reportview.ReportDetailView.as_view(), name='report-detail'),
     path('report/<int:pk>/update/', reportview.ReportUpdateView.as_view(), name='report-update'),
     path('report/<int:pk>/delete/', reportview.ReportDeleteView.as_view(), name='report-delete'),
