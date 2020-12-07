@@ -112,7 +112,6 @@ def UnitDetail(request, pk):
             new_head = User.objects.get(pk=head_pk)
             if unit.head != new_head:
                 if unit.head:
-                    #former_head = User.objects.get(pk = unit.head.pk)
                     former_head = unit.head
                     temp = former_head.careerhistory_set.last()
                     temp.date_ended = datetime.datetime.now()
