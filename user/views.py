@@ -62,9 +62,6 @@ class UnitCreateView(LoginRequiredMixin,  UserPassesTestMixin, CreateView):
         context['template_test'] = auth_template(signed_in_user)['template_test']
         return context
 
-    def form_valid(self, form):
-        return super().form_valid(form)
-
     def test_func(self):
         return auth_test(self.request.user, 6)
 
