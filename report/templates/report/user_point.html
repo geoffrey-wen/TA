@@ -42,7 +42,7 @@
         {% if feature_test.4 or feature_test.3 %}
         <a class="nav-item nav-link align-middle" href="{% url 'user-taken' selected_user.username %}">Report Taken</a>
         {% endif %}
-        {% if feature_test.4 or feature_test.1 %}
+        {% if feature_test.4 or feature_test.1 or feature_test.8 %}
         <a class="nav-item nav-link align-middle" href="{% url 'user-collab' selected_user.username %}">Collaboration</a>
         {% endif %}
         {% if feature_test.4 or feature_test.5 %}
