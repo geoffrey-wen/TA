@@ -222,7 +222,7 @@ class UserCollaborationListView(LoginRequiredMixin, UserPassesTestMixin, ListVie
         user = get_object_or_404(User, username=self.kwargs.get('username'))
         if user == self.request.user:
             return True
-        return auth_test(self.request.user, 5) or auth_test(self.request.user, 2)
+        return auth_test(self.request.user, 5) or auth_test(self.request.user, 2) or auth_test(self.request.user, 9)
 
     def handle_no_permission(self):
         if not self.request.user.username:
