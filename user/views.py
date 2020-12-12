@@ -68,7 +68,7 @@ class UnitCreateView(LoginRequiredMixin,  UserPassesTestMixin, CreateView):
     def handle_no_permission(self):
         if not self.request.user.username:
             return redirect('/login/?next=%s' % self.request.path)
-        messages.error(self.request, f"Sorry you are not authorized !")
+        messages.error(self.request, f"Sorry you are not authorized to access unit-create!")
         return redirect('home')
 
 
@@ -77,7 +77,7 @@ def UnitDetail(request, pk):
         return redirect('/login/?next=%s' % request.path)
 
     if not auth_test(request.user, 6):
-        messages.error(request, f"Sorry you are not authorized !")
+        messages.error(request, f"Sorry you are not authorized to access unit-detail!")
         return redirect('home')
 
     unit = get_object_or_404(Unit, pk=pk)
@@ -195,7 +195,7 @@ def UnitHierarchy(request):
         return redirect('/login/?next=%s' % request.path)
 
     if not auth_test(request.user, 6):
-        messages.error(request, f"Sorry you are not authorized !")
+        messages.error(request, f"Sorry you are not authorized to access unit-list!")
         return redirect('home')
 
     units = Unit.objects.all()
@@ -215,7 +215,7 @@ def AuthDetail(request):
         return redirect('/login/?next=%s' % request.path)
 
     if not auth_test(request.user, 7):
-        messages.error(request, f"Sorry you are not authorized !")
+        messages.error(request, f"Sorry you are not authorized to access auth-detail!")
         return redirect('home')
 
     auth_list = []
@@ -313,7 +313,7 @@ class PointHistoryCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView
     def handle_no_permission(self):
         if not self.request.user.username:
             return redirect('/login/?next=%s' % self.request.path)
-        messages.error(self.request, f"Sorry you are not authorized !")
+        messages.error(self.request, f"Sorry you are not authorized to access point-create!")
         return redirect('home')
 
 
@@ -322,7 +322,7 @@ def UserList(request):
         return redirect('/login/?next=%s' % request.path)
 
     if not auth_test(request.user, 6):
-        messages.error(request, f"Sorry you are not authorized !")
+        messages.error(request, f"Sorry you are not authorized to access user-list!")
         return redirect('home')
 
     users = User.objects.all()
@@ -353,7 +353,7 @@ def PointHistoryList(request):
         return redirect('/login/?next=%s' % request.path)
 
     if not auth_test(request.user, 8):
-        messages.error(request, f"Sorry you are not authorized !")
+        messages.error(request, f"Sorry you are not authorized to access point-list!")
         return redirect('home')
 
     point_logs = PointHistory.objects.all()
